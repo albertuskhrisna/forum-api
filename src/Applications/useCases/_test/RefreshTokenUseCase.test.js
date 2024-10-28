@@ -1,0 +1,65 @@
+const IAuthenticationRepository = require('../../../Domains/authentication/IAuthenticationRepository');
+const IAuthenticationTokenManager = require('../../security/IAuthenticationTokenManager');
+const RefreshTokenUseCase = require('../RefreshTokenUseCase');
+
+describe('A RefreshTokenUseCase', () => {
+  it('should throw error when payload did not contain needed property', async () => {
+    // Arrange
+    const payload = {};
+    const refreshTokenUseCase = new RefreshTokenUseCase({});
+
+    // Act & Assert
+    await expect(() => refreshTokenUseCase.execute(payload))
+      .rejects.toThrow(Error('REFRESH_TOKEN_USE_CASE.NOT_CONTAIN_NEEDED_PROPERTY'));
+  });
+
+  it('should throw error when payload did not meet data type specification', async () => {
+    // Arrange
+    const payload = {
+      refreshToken: 123,
+    };
+    const refreshTokenUseCase = new RefreshTokenUseCase({});
+
+    // Act & Assert
+    await expect(() => refreshTokenUseCase.execute(payload))
+      .rejects.toThrow(Error('REFRESH_TOKEN_USE_CASE.NOT_MEET_DATA_TYPE_SPECIFICATION'));
+  });
+
+  it('should orchestrating the refresh authentication action correctly', async () => {
+    // Arrange
+    const payload = {
+      refreshToken: 'refresh_token',
+    };
+
+    const mockAuthenticationRepository = new IAuthenticationRepository();
+    const mockAuthenticationTokenManager = new IAuthenticationTokenManager();
+
+    mockAuthenticationTokenManager.verifyRefreshToken = jest.fn()
+      .mockImplementation(() => Promise.resolve());
+    mockAuthenticationRepository.checkTokenAvailability = jest.fn()
+      .mockImplementation(() => Promise.resolve());
+    mockAuthenticationTokenManager.decodePayload = jest.fn()
+      .mockImplementation(() => Promise.resolve({ id: 'user-123', username: 'albert' }));
+    mockAuthenticationTokenManager.createAccessToken = jest.fn()
+      .mockImplementation(() => Promise.resolve('new_access_token'));
+
+    const refreshTokenUseCase = new RefreshTokenUseCase({
+      authenticationRepository: mockAuthenticationRepository,
+      authenticationTokenManager: mockAuthenticationTokenManager,
+    });
+
+    // Act
+    const actual = await refreshTokenUseCase.execute(payload);
+
+    // Assert
+    expect(mockAuthenticationTokenManager.verifyRefreshToken)
+      .toHaveBeenCalledWith(payload.refreshToken);
+    expect(mockAuthenticationRepository.checkTokenAvailability)
+      .toHaveBeenCalledWith(payload.refreshToken);
+    expect(mockAuthenticationTokenManager.decodePayload)
+      .toHaveBeenCalledWith(payload.refreshToken);
+    expect(mockAuthenticationTokenManager.createAccessToken)
+      .toHaveBeenCalledWith({ id: 'user-123', username: 'albert' });
+    expect(actual).toEqual('new_access_token');
+  });
+});
