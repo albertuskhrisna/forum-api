@@ -22,15 +22,15 @@ exports.up = (pgm) => {
       type: 'TIMESTAMP',
       notNull: true,
     },
-    threadId: {
+    thread_id: {
       type: 'VARCHAR(50)',
       notNull: true,
     },
-    userId: {
+    owner_id: {
       type: 'VARCHAR(50)',
       notNull: true,
     },
-    isDeleted: {
+    is_deleted: {
       type: 'BOOLEAN',
       notNull: true,
       default: false,

@@ -1,6 +1,6 @@
 const IUserRepository = require('../IUserRepository');
 
-describe('An UserRepository interface', () => {
+describe('UserRepository interface', () => {
   it('should throw error when invoke abstract behavior', async () => {
     // Arrange
     const userRepository = new IUserRepository();

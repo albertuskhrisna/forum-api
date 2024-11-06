@@ -26,7 +26,7 @@ exports.up = (pgm) => {
       type: 'TIMESTAMP',
       notNull: true,
     },
-    userId: {
+    owner_id: {
       type: 'VARCHAR(50)',
       notNull: true,
     },

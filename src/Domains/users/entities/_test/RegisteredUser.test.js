@@ -1,6 +1,6 @@
 const RegisteredUser = require('../RegisteredUser');
 
-describe('A RegisteredUser', () => {
+describe('RegisteredUser entity', () => {
   it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {
@@ -24,7 +24,7 @@ describe('A RegisteredUser', () => {
     expect(() => new RegisteredUser(payload)).toThrow(Error('REGISTERED_USER.NOT_MEET_DATA_TYPE_SPECIFICATION'));
   });
 
-  it('should create RegisteredUser object correctly', () => {
+  it('should construct RegisteredUser object correctly when payload is valid', () => {
     // Arrange
     const payload = {
       id: 'A',
@@ -33,11 +33,12 @@ describe('A RegisteredUser', () => {
     };
 
     // Act
-    const { id, username, fullname } = new RegisteredUser(payload);
+    const actual = new RegisteredUser(payload);
 
     // Assert
-    expect(id).toEqual(payload.id);
-    expect(username).toEqual(payload.username);
-    expect(fullname).toEqual(payload.fullname);
+    expect(actual).toBeInstanceOf(RegisteredUser);
+    expect(actual.id).toEqual(payload.id);
+    expect(actual.username).toEqual(payload.username);
+    expect(actual.fullname).toEqual(payload.fullname);
   });
 });

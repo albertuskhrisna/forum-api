@@ -1,6 +1,6 @@
 const Authentication = require('../Authentication');
 
-describe('Authentication entities', () => {
+describe('Authentication entity', () => {
   it('should throw error when payload did not contain needed property', () => {
     const payload = {
       accessToken: 'A',
@@ -18,16 +18,16 @@ describe('Authentication entities', () => {
     expect(() => new Authentication(payload)).toThrow(Error('AUTHENTICATION.NOT_MEET_DATA_TYPE_SPECIFICATION'));
   });
 
-  it('should create Authentication object correctly', () => {
+  it('should construct Authentication object correctly when payload is valid', () => {
     const payload = {
       accessToken: 'A',
       refreshToken: 'B',
     };
 
-    const authentication = new Authentication(payload);
+    const actual = new Authentication(payload);
 
-    expect(authentication).toBeInstanceOf(Authentication);
-    expect(authentication.accessToken).toEqual(payload.accessToken);
-    expect(authentication.refreshToken).toEqual(payload.refreshToken);
+    expect(actual).toBeInstanceOf(Authentication);
+    expect(actual.accessToken).toEqual(payload.accessToken);
+    expect(actual.refreshToken).toEqual(payload.refreshToken);
   });
 });

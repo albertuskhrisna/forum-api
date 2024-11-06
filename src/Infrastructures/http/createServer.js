@@ -1,8 +1,10 @@
 const Hapi = require('@hapi/hapi');
-const users = require('../../Interfaces/http/api/users');
+const Jwt = require('@hapi/jwt');
 const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
 const ClientError = require('../../Commons/exceptions/ClientError');
 const authentications = require('../../Interfaces/http/api/authentications');
+const users = require('../../Interfaces/http/api/users');
+const threads = require('../../Interfaces/http/api/threads');
 
 const createServer = async (container) => {
   const server = Hapi.server({
@@ -12,11 +14,37 @@ const createServer = async (container) => {
 
   await server.register([
     {
+      plugin: Jwt,
+    },
+  ]);
+
+  server.auth.strategy('forumapi_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credential: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
+  });
+
+  await server.register([
+    {
       plugin: users,
       options: { container },
     },
     {
       plugin: authentications,
+      options: { container },
+    },
+    {
+      plugin: threads,
       options: { container },
     },
   ]);

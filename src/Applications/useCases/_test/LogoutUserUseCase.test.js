@@ -1,14 +1,14 @@
 const IAuthenticationRepository = require('../../../Domains/authentication/IAuthenticationRepository');
 const LogoutUserUseCase = require('../LogoutUserUseCase');
 
-describe('A LogoutUserUseCase', () => {
+describe('LogoutUser use case', () => {
   it('should throw error when payload did not contain refresh token', async () => {
     // Arrange
     const payload = {};
-    const logoutUserUseCase = new LogoutUserUseCase({});
+    const sut = new LogoutUserUseCase({});
 
     // Act & Assert
-    expect(() => logoutUserUseCase.execute(payload))
+    expect(() => sut.execute(payload))
       .rejects.toThrow(Error('LOGOUT_USER_USE_CASE.NOT_CONTAIN_NEEDED_PROPERTY'));
   });
 
@@ -17,10 +17,10 @@ describe('A LogoutUserUseCase', () => {
     const payload = {
       refreshToken: 123,
     };
-    const logoutUserUseCase = new LogoutUserUseCase({});
+    const sut = new LogoutUserUseCase({});
 
     // Act & Assert
-    expect(() => logoutUserUseCase.execute(payload))
+    expect(() => sut.execute(payload))
       .rejects.toThrow(Error('LOGOUT_USER_USE_CASE.NOT_MEET_DATA_TYPE_SPECIFICATION'));
   });
 
@@ -36,12 +36,12 @@ describe('A LogoutUserUseCase', () => {
     mockAuthenticationRepository.deleteToken = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
-    const logoutUserUseCase = new LogoutUserUseCase({
+    const sut = new LogoutUserUseCase({
       authenticationRepository: mockAuthenticationRepository,
     });
 
     // Act
-    await logoutUserUseCase.execute(payload);
+    await sut.execute(payload);
 
     // Assert
     expect(mockAuthenticationRepository.checkTokenAvailability).toHaveBeenCalledWith(payload.refreshToken);

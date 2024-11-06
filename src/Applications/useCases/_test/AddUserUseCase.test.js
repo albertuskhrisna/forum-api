@@ -4,7 +4,7 @@ const IUserRepository = require('../../../Domains/users/IUserRepository');
 const IPasswordHash = require('../../security/IPasswordHash');
 const AddUserUseCase = require('../AddUserUseCase');
 
-describe('An AddUserUseCase', () => {
+describe('AddUser use case', () => {
   it('should orchestrating the add user action correctly', async () => {
     // Arrange
     const payload = {

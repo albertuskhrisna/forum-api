@@ -1,6 +1,6 @@
 const LoginUser = require('../LoginUser');
 
-describe('A LoginUser', () => {
+describe('LoginUser entity', () => {
   it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {
@@ -22,7 +22,7 @@ describe('A LoginUser', () => {
     expect(() => new LoginUser(payload)).toThrow(Error('LOGIN_USER.NOT_MEET_DATA_TYPE_SPECIFICATION'));
   });
 
-  it('should create LoginUser object correctly', () => {
+  it('should construct LoginUser object correctly when payload is valid', () => {
     // Arrange
     const payload = {
       username: 'A',
@@ -30,10 +30,11 @@ describe('A LoginUser', () => {
     };
 
     // Act
-    const { username, fullname } = new LoginUser(payload);
+    const actual = new LoginUser(payload);
 
     // Assert
-    expect(username).toEqual(payload.username);
-    expect(fullname).toEqual(payload.fullname);
+    expect(actual).toBeInstanceOf(LoginUser);
+    expect(actual.username).toEqual(payload.username);
+    expect(actual.fullname).toEqual(payload.fullname);
   });
 });

@@ -2,14 +2,14 @@ const IAuthenticationRepository = require('../../../Domains/authentication/IAuth
 const IAuthenticationTokenManager = require('../../security/IAuthenticationTokenManager');
 const RefreshTokenUseCase = require('../RefreshTokenUseCase');
 
-describe('A RefreshTokenUseCase', () => {
+describe('RefreshToken use case', () => {
   it('should throw error when payload did not contain needed property', async () => {
     // Arrange
     const payload = {};
-    const refreshTokenUseCase = new RefreshTokenUseCase({});
+    const sut = new RefreshTokenUseCase({});
 
     // Act & Assert
-    await expect(() => refreshTokenUseCase.execute(payload))
+    await expect(() => sut.execute(payload))
       .rejects.toThrow(Error('REFRESH_TOKEN_USE_CASE.NOT_CONTAIN_NEEDED_PROPERTY'));
   });
 
@@ -18,10 +18,10 @@ describe('A RefreshTokenUseCase', () => {
     const payload = {
       refreshToken: 123,
     };
-    const refreshTokenUseCase = new RefreshTokenUseCase({});
+    const sut = new RefreshTokenUseCase({});
 
     // Act & Assert
-    await expect(() => refreshTokenUseCase.execute(payload))
+    await expect(() => sut.execute(payload))
       .rejects.toThrow(Error('REFRESH_TOKEN_USE_CASE.NOT_MEET_DATA_TYPE_SPECIFICATION'));
   });
 
@@ -43,13 +43,13 @@ describe('A RefreshTokenUseCase', () => {
     mockAuthenticationTokenManager.createAccessToken = jest.fn()
       .mockImplementation(() => Promise.resolve('new_access_token'));
 
-    const refreshTokenUseCase = new RefreshTokenUseCase({
+    const sut = new RefreshTokenUseCase({
       authenticationRepository: mockAuthenticationRepository,
       authenticationTokenManager: mockAuthenticationTokenManager,
     });
 
     // Act
-    const actual = await refreshTokenUseCase.execute(payload);
+    const actual = await sut.execute(payload);
 
     // Assert
     expect(mockAuthenticationTokenManager.verifyRefreshToken)

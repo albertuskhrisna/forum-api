@@ -17,6 +17,8 @@ DomainErrorTranslator._errorDictionary = {
   'REFRESH_TOKEN_USE_CASE.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('refresh token harus string'),
   'LOGOUT_USER_USE_CASE.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('harus mengirimkan refresh token'),
   'LOGOUT_USER_USE_CASE.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('refresh token harus string'),
+  'CREATE_THREAD.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat membuat thread baru karena properti yang dibutuhkan tidak ada'),
+  'CREATE_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat membuat thread baru karena terdapat properti dengan tipe data tidak sesuai'),
 };
 
 module.exports = DomainErrorTranslator;

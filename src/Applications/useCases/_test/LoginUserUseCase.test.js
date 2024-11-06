@@ -5,7 +5,7 @@ const IAuthenticationTokenManager = require('../../security/IAuthenticationToken
 const IPasswordHash = require('../../security/IPasswordHash');
 const LoginUserUseCase = require('../LoginUserUseCase');
 
-describe('A LoginUserUseCase', () => {
+describe('LoginUser use case', () => {
   it('should orchestrating the login user action correctly', async () => {
     // Arrange
     const payload = {
@@ -36,7 +36,7 @@ describe('A LoginUserUseCase', () => {
     mockAuthenticationRepository.addToken = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
-    const loginUserUseCase = new LoginUserUseCase({
+    const sut = new LoginUserUseCase({
       userRepository: mockUserRepository,
       authenticationRepository: mockAuthenticationRepository,
       authenticationTokenManager: mockAuthenticationTokenManager,
@@ -44,7 +44,7 @@ describe('A LoginUserUseCase', () => {
     });
 
     // Act
-    const actual = await loginUserUseCase.execute(payload);
+    const actual = await sut.execute(payload);
 
     // Assert
     expect(actual).toEqual(new Authentication({

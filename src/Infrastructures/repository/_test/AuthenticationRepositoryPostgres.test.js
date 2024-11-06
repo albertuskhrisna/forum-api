@@ -3,7 +3,7 @@ const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPos
 const pool = require('../../database/postgres/pool');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 
-describe('An AuthenticationRepositoryPostgres', () => {
+describe('AuthenticationRepositoryPostgres', () => {
   afterEach(async () => {
     await AuthenticationsTableTestHelper.cleanTable();
   });
@@ -12,7 +12,7 @@ describe('An AuthenticationRepositoryPostgres', () => {
     await pool.end();
   });
 
-  describe('An addToken function', () => {
+  describe('addToken function', () => {
     it('should persist token to database', async () => {
       // Arrange
       const authenticationRepositoryPostgres = new AuthenticationRepositoryPostgres(pool);
@@ -28,7 +28,7 @@ describe('An AuthenticationRepositoryPostgres', () => {
     });
   });
 
-  describe('An checkTokenAvailability function', () => {
+  describe('checkTokenAvailability function', () => {
     it('should throw InvariantError when token not found', async () => {
       // Arrange
       const authenticationRepositoryPostgres = new AuthenticationRepositoryPostgres(pool);
@@ -51,7 +51,7 @@ describe('An AuthenticationRepositoryPostgres', () => {
     });
   });
 
-  describe('A deleteToken function', () => {
+  describe('deleteToken function', () => {
     it('should delete token from database', async () => {
       // Arrange
       const authenticationRepositoryPostgres = new AuthenticationRepositoryPostgres(pool);

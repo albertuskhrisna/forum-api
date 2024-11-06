@@ -5,7 +5,7 @@ const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser');
 
-describe('An UserRepositoryPostgres', () => {
+describe('UserRepositoryPostgres', () => {
   afterEach(async () => {
     await UsersTableTestHelper.cleanTable();
   });
@@ -14,7 +14,7 @@ describe('An UserRepositoryPostgres', () => {
     await pool.end();
   });
 
-  describe('An addUser function', () => {
+  describe('addUser function', () => {
     it('should persist register user', async () => {
       // Arrange
       const registerUser = new RegisterUser({
@@ -55,7 +55,7 @@ describe('An UserRepositoryPostgres', () => {
     });
   });
 
-  describe('A verifyAvailableUsername function', () => {
+  describe('verifyAvailableUsername function', () => {
     it('should throw InvariantError when username not available', async () => {
       // Arrange
       await UsersTableTestHelper.addUser({ username: 'albert' });
@@ -74,7 +74,7 @@ describe('An UserRepositoryPostgres', () => {
     });
   });
 
-  describe('A getPasswordByUsername function', () => {
+  describe('getPasswordByUsername function', () => {
     it('should throw InvariantError when user not found', () => {
       // Arrange
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
@@ -100,7 +100,7 @@ describe('An UserRepositoryPostgres', () => {
     });
   });
 
-  describe('A getUserIdByUsername function', () => {
+  describe('getUserIdByUsername function', () => {
     it('should throw InvariantError when user not found', () => {
       // Arrange
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});

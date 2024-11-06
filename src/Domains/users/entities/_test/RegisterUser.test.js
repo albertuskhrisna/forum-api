@@ -1,6 +1,6 @@
 const RegisterUser = require('../RegisterUser');
 
-describe('A RegisterUser', () => {
+describe('RegisterUser entity', () => {
   it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {
@@ -48,7 +48,7 @@ describe('A RegisterUser', () => {
     expect(() => new RegisterUser(payload)).toThrow(Error('REGISTER_USER.USERNAME_CONTAIN_RESTRICTED_CHARACTER'));
   });
 
-  it('should create RegiterUser object correctly', () => {
+  it('should construct RegisterUser object correctly when payload is valid', () => {
     // Arrange
     const payload = {
       username: 'A',
@@ -57,11 +57,12 @@ describe('A RegisterUser', () => {
     };
 
     // Act
-    const { username, password, fullname } = new RegisterUser(payload);
+    const actual = new RegisterUser(payload);
 
     // Assert
-    expect(username).toEqual(payload.username);
-    expect(password).toEqual(payload.password);
-    expect(fullname).toEqual(payload.fullname);
+    expect(actual).toBeInstanceOf(RegisterUser);
+    expect(actual.username).toEqual(payload.username);
+    expect(actual.password).toEqual(payload.password);
+    expect(actual.fullname).toEqual(payload.fullname);
   });
 });
