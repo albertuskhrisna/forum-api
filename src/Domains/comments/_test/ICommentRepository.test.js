@@ -8,5 +8,8 @@ describe('CommentRepository interface', () => {
     // Assert
     await expect(() => commentRepository.addComment('')).rejects.toThrow(Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'));
     await expect(() => commentRepository.getCommentByThreadId('')).rejects.toThrow(Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'));
+    await expect(() => commentRepository.checkCommentAvailability('')).rejects.toThrow(Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'));
+    await expect(() => commentRepository.checkCommentOwner('')).rejects.toThrow(Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'));
+    await expect(() => commentRepository.deleteCommentById('')).rejects.toThrow(Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'));
   });
 });

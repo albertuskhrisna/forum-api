@@ -19,7 +19,7 @@ const CommentsTableTestHelper = {
 
   async findCommentById(id) {
     const query = {
-      text: 'SELECT * FROM comments WHERE id = $1',
+      text: 'SELECT * FROM comments WHERE id = $1 AND is_deleted = FALSE',
       values: [id],
     };
 

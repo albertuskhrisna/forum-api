@@ -16,6 +16,14 @@ const routes = (handler) => (
         auth: 'forumapi_jwt',
       },
     },
+    {
+      method: 'DELETE',
+      path: '/threads/{threadId}/comments/{commentId}',
+      handler: (request) => handler.deleteThreadCommentHandler(request),
+      options: {
+        auth: 'forumapi_jwt',
+      },
+    },
   ]
 );
 

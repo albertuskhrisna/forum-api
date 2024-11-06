@@ -1,3 +1,5 @@
+const ForbiddenError = require('../../Commons/exceptions/ForbiddenError');
+const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const CreatedComment = require('../../Domains/comments/entities/CreatedComment');
 const ICommentRepository = require('../../Domains/comments/ICommentRepository');
 
@@ -25,6 +27,39 @@ class CommentRepositoryPostgres extends ICommentRepository {
       content: newComment.content,
       owner: newComment.owner_id,
     });
+  }
+
+  async checkCommentAvailability(commentId, threadId) {
+    const query = {
+      text: 'SELECT id FROM comments WHERE id = $1 AND thread_id = $2 AND is_deleted = FALSE',
+      values: [commentId, threadId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new NotFoundError('komentar tidak ditemukan di database');
+    }
+  }
+
+  async checkCommentOwner(commentId, userId) {
+    const query = {
+      text: 'SELECT id FROM comments WHERE id = $1 AND owner_id = $2 AND is_deleted = FALSE',
+      values: [commentId, userId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new ForbiddenError('komentar ini bukan milik anda');
+    }
+  }
+
+  async deleteCommentById(commentId) {
+    const query = {
+      text: 'UPDATE comments SET is_deleted = TRUE WHERE id = $1 AND is_deleted = FALSE',
+      values: [commentId],
+    };
+
+    await this._pool.query(query);
   }
 }
 
