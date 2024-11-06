@@ -11,7 +11,7 @@ const pool = require('./database/postgres/pool');
 /* service interface (repository, helper, manager, etc) */
 const IUserRepository = require('../Domains/users/IUserRepository');
 const IPasswordHash = require('../Applications/security/IPasswordHash');
-const IAuthenticationRepository = require('../Domains/authentication/IAuthenticationRepository');
+const IAuthenticationRepository = require('../Domains/authentications/IAuthenticationRepository');
 const IAuthenticationTokenManager = require('../Applications/security/IAuthenticationTokenManager');
 const IThreadRepository = require('../Domains/threads/IThreadRepository');
 

@@ -1,5 +1,5 @@
-const Authentication = require('../../../Domains/authentication/entities/Authentication');
-const IAuthenticationRepository = require('../../../Domains/authentication/IAuthenticationRepository');
+const Authentication = require('../../../Domains/authentications/entities/Authentication');
+const IAuthenticationRepository = require('../../../Domains/authentications/IAuthenticationRepository');
 const IUserRepository = require('../../../Domains/users/IUserRepository');
 const IAuthenticationTokenManager = require('../../security/IAuthenticationTokenManager');
 const IPasswordHash = require('../../security/IPasswordHash');

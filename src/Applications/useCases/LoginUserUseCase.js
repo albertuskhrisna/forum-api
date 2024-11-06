@@ -1,4 +1,4 @@
-const Authentication = require('../../Domains/authentication/entities/Authentication');
+const Authentication = require('../../Domains/authentications/entities/Authentication');
 const LoginUser = require('../../Domains/users/entities/LoginUser');
 
 class LoginUserUseCase {
