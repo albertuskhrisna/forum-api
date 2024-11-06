@@ -1,4 +1,5 @@
 const AddThreadUseCase = require('../../../../Applications/useCases/AddThreadUseCase');
+const AddCommentUseCase = require('../../../../Applications/useCases/AddCommentUseCase');
 
 class ThreadsHandler {
   constructor(container) {
@@ -14,6 +15,23 @@ class ThreadsHandler {
       status: 'success',
       data: {
         addedThread,
+      },
+    });
+
+    response.code(201);
+    return response;
+  }
+
+  async postThreadCommentHandler(request, h) {
+    const addCommentUseCase = this._container.getInstance(AddCommentUseCase.name);
+    const { threadId } = request.params;
+    const { id: userId } = request.auth.credentials;
+    const addedComment = await addCommentUseCase.execute(userId, threadId, request.payload);
+
+    const response = h.response({
+      status: 'success',
+      data: {
+        addedComment,
       },
     });
 

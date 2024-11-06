@@ -14,6 +14,7 @@ const IPasswordHash = require('../Applications/security/IPasswordHash');
 const IAuthenticationRepository = require('../Domains/authentications/IAuthenticationRepository');
 const IAuthenticationTokenManager = require('../Applications/security/IAuthenticationTokenManager');
 const IThreadRepository = require('../Domains/threads/IThreadRepository');
+const ICommentRepository = require('../Domains/comments/ICommentRepository');
 
 /* service concrete (repository, helper, manager, etc) */
 const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
@@ -21,6 +22,7 @@ const BcryptPassowrdHash = require('./security/BcryptPasswordHash');
 const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRepositoryPostgres');
 const JwtTokenManager = require('./security/JwtTokenManager');
 const ThreadRepositoryPostgres = require('./repository/ThreadRepositoryPostgres');
+const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgres');
 
 /* use cases */
 const AddUserUseCase = require('../Applications/useCases/AddUserUseCase');
@@ -28,6 +30,7 @@ const LoginUserUseCase = require('../Applications/useCases/LoginUserUseCase');
 const RefreshTokenUseCase = require('../Applications/useCases/RefreshTokenUseCase');
 const LogoutUserUseCase = require('../Applications/useCases/LogoutUserUseCase');
 const AddThreadUseCase = require('../Applications/useCases/AddThreadUseCase');
+const AddCommentUseCase = require('../Applications/useCases/AddCommentUseCase');
 
 /* create container */
 const container = createContainer();
@@ -84,6 +87,20 @@ container.register([
   {
     key: IThreadRepository.name,
     Class: ThreadRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
+        },
+        {
+          concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
+    key: ICommentRepository.name,
+    Class: CommentRepositoryPostgres,
     parameter: {
       dependencies: [
         {
@@ -180,6 +197,23 @@ container.register([
         {
           name: 'threadRepository',
           internal: IThreadRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: AddCommentUseCase.name,
+    Class: AddCommentUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'threadRepository',
+          internal: IThreadRepository.name,
+        },
+        {
+          name: 'commentRepository',
+          internal: ICommentRepository.name,
         },
       ],
     },

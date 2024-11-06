@@ -94,204 +94,104 @@ describe('/threads endpoint', () => {
     });
   });
 
-  /* describe('when PUT /authentications', () => {
-    it('should response 200 and return new access token', async () => {
+  describe('when POST /threads/{threadId}/comments', () => {
+    it('should response 201 and persisted new comment on existing thread', async () => {
       // Arrange
+      const requestPayload = {
+        content: 'some comment content',
+      };
       const server = await createServer(container);
+      const accessToken = await ServerTestHelper.getAccessToken();
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
 
-      await server.inject({
+      // Act
+      const response = await server.inject({
         method: 'POST',
-        url: '/users',
-        payload: {
-          username: 'albert',
-          password: 'secret',
-          fullname: 'Albertus Khrisna',
+        url: '/threads/thread-123/comments',
+        payload: requestPayload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
-      const loginResponse = await server.inject({
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(201);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.addedComment).toBeDefined();
+    });
+
+    it('should response 400 when request payload not contain needed property', async () => {
+      // Arrange
+      const requestPayload = {};
+      const server = await createServer(container);
+      const accessToken = await ServerTestHelper.getAccessToken();
+
+      // Act
+      const response = await server.inject({
         method: 'POST',
-        url: '/authentications',
-        payload: {
-          username: 'albert',
-          password: 'secret',
+        url: '/threads/thread-123/comments',
+        payload: requestPayload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
-      const { data: { refreshToken } } = JSON.parse(loginResponse.payload);
-      const requestPayload = { refreshToken };
-
-      // Act
-      const response = await server.inject({
-        method: 'PUT',
-        url: '/authentications',
-        payload: requestPayload,
-      });
-
-      // Assert
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(200);
-      expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.accessToken).toBeDefined();
-    });
-
-    it('should response 400 when payload not contain refresh token', async () => {
-      // Arrange
-      const server = await createServer(container);
-      const requestPayload = {};
-
-      // Act
-      const response = await server.inject({
-        method: 'PUT',
-        url: '/authentications',
-        payload: requestPayload,
-      });
-
       // Assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('harus mengirimkan refresh token');
+      expect(responseJson.message).toEqual('tidak dapat membuat comment baru karena properti yang dibutuhkan tidak ada');
     });
 
-    it('should response 400 when refresh token has wrong data type', async () => {
+    it('should response 400 when request payload has wrong data type', async () => {
       // Arrange
-      const server = await createServer(container);
-      const requestPayload = { refreshToken: 123 };
-
-      // Act
-      const response = await server.inject({
-        method: 'PUT',
-        url: '/authentications',
-        payload: requestPayload,
-      });
-
-      // Assert
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token harus string');
-    });
-
-    it('should response 400 when refresh token invalid', async () => {
-      // Arrange
-      const server = await createServer(container);
-      const requestPayload = { refreshToken: 'invalid_refresh_token' };
-
-      // Act
-      const response = await server.inject({
-        method: 'PUT',
-        url: '/authentications',
-        payload: requestPayload,
-      });
-
-      // Assert
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token tidak valid');
-    });
-
-    it('should response 400 when refresh token not found in database', async () => {
-      // Arrange
-      const server = await createServer(container);
-      const refreshToken = await container.getInstance(IAuthenticationTokenManager.name).createRefreshToken({ id: 'user-123', username: 'albert' });
-      const requestPayload = { refreshToken };
-
-      // Act
-      const response = await server.inject({
-        method: 'PUT',
-        url: '/authentications',
-        payload: requestPayload,
-      });
-
-      // Assert
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token tidak ditemukan di database');
-    });
-  }); */
-
-  /* describe('when DELETE /authentications', () => {
-    it('should response 200 when refresh token is valid', async () => {
-      // Arrange
-      const server = await createServer(container);
       const requestPayload = {
-        refreshToken: 'refresh_token',
+        content: 123,
       };
-      await AuthenticationsTableTestHelper.addToken(requestPayload.refreshToken);
+      const server = await createServer(container);
+      const accessToken = await ServerTestHelper.getAccessToken();
 
       // Act
       const response = await server.inject({
-        method: 'DELETE',
-        url: '/authentications',
+        method: 'POST',
+        url: '/threads/thread-123/comments',
         payload: requestPayload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(200);
-      expect(responseJson.status).toEqual('success');
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('tidak dapat membuat comment baru karena terdapat properti dengan tipe data tidak sesuai');
     });
 
-    it('should response 400 when refresh token not found in database', async () => {
+    it('should response 404 when thread not found', async () => {
       // Arrange
-      const server = await createServer(container);
       const requestPayload = {
-        refreshToken: 'refresh_token',
+        content: 'some comment content',
       };
-
-      // Act
-      const response = await server.inject({
-        method: 'DELETE',
-        url: '/authentications',
-        payload: requestPayload,
-      });
-
-      // Assert
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token tidak ditemukan di database');
-    });
-
-    it('should response 400 when payload not contain refresh token', async () => {
-      // Arrange
       const server = await createServer(container);
-      const requestPayload = {};
+      const accessToken = await ServerTestHelper.getAccessToken();
 
       // Act
       const response = await server.inject({
-        method: 'DELETE',
-        url: '/authentications',
+        method: 'POST',
+        url: '/threads/thread-123/comments',
         payload: requestPayload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
+      expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('harus mengirimkan refresh token');
+      expect(responseJson.message).toEqual('thread tidak ditemukan di database');
     });
-
-    it('should response 400 when refresh token has wrong data type', async () => {
-      // Arrange
-      const server = await createServer(container);
-      const requestPayload = { refreshToken: 123 };
-
-      // Act
-      const response = await server.inject({
-        method: 'DELETE',
-        url: '/authentications',
-        payload: requestPayload,
-      });
-
-      // Assert
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token harus string');
-    });
-  }); */
+  });
 });
