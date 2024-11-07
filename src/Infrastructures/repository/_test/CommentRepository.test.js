@@ -46,18 +46,18 @@ describe('ThreadRepositoryPostgres', () => {
       const threadId = 'thread-123';
       const expectedComments = [
         {
-          id: 'comment-123',
-          username: 'albert',
-          date: new Date('2021-08-08T07:22:33.555Z'),
-          content: 'sebuah comment',
-          is_deleted: false,
-        },
-        {
           id: 'comment-234',
           username: 'albert',
           date: new Date('2021-08-08T07:22:33.555Z'),
           content: 'sebuah comment',
           is_deleted: true,
+        },
+        {
+          id: 'comment-123',
+          username: 'albert',
+          date: new Date('2021-08-08T07:25:33.555Z'),
+          content: 'sebuah comment',
+          is_deleted: false,
         },
       ];
 
@@ -68,7 +68,7 @@ describe('ThreadRepositoryPostgres', () => {
         content: 'sebuah comment',
         threadId: 'thread-123',
         userId: 'user-123',
-        date: '2021-08-08T07:22:33.555Z',
+        date: '2021-08-08T07:25:33.555Z',
       });
       await CommentsTableTestHelper.addComment({
         id: 'comment-234',

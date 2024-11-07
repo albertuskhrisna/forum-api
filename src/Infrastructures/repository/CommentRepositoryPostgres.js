@@ -33,7 +33,7 @@ class CommentRepositoryPostgres extends ICommentRepository {
     const query = {
       text: `SELECT comments.id, comments.content, timezone('UTC', comments.date) AS date, 
         comments.is_deleted, users.username FROM comments JOIN users ON comments.owner_id = users.id
-        WHERE comments.thread_id = $1`,
+        WHERE comments.thread_id = $1 ORDER BY date ASC`,
       values: [threadId],
     };
 
