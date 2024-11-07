@@ -29,6 +29,18 @@ class CommentRepositoryPostgres extends ICommentRepository {
     });
   }
 
+  async getCommentByThreadId(threadId) {
+    const query = {
+      text: `SELECT comments.id, comments.content, timezone('UTC', comments.date) AS date, 
+        comments.is_deleted, users.username FROM comments JOIN users ON comments.owner_id = users.id
+        WHERE comments.thread_id = $1`,
+      values: [threadId],
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows;
+  }
+
   async checkCommentAvailability(commentId, threadId) {
     const query = {
       text: 'SELECT id FROM comments WHERE id = $1 AND thread_id = $2 AND is_deleted = FALSE',

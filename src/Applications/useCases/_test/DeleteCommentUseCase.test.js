@@ -1,12 +1,9 @@
-const IThreadRepository = require('../../../Domains/threads/IThreadRepository');
 const ICommentRepository = require('../../../Domains/comments/ICommentRepository');
 const DeleteCommentUseCase = require('../DeleteCommentUseCase');
-const ForbiddenError = require('../../../Commons/exceptions/ForbiddenError');
 
 describe('Delete Comment use case', () => {
   it('should orchestrating the delete comment action correctly', async () => {
     // Arrange
-    const mockThreadRepository = new IThreadRepository();
     const mockCommentRepository = new ICommentRepository();
     mockCommentRepository.checkCommentAvailability = jest.fn()
       .mockImplementation(() => Promise.resolve());
@@ -15,7 +12,7 @@ describe('Delete Comment use case', () => {
     mockCommentRepository.deleteCommentById = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
-    const sut = new DeleteCommentUseCase({ threadRepository: mockThreadRepository, commentRepository: mockCommentRepository });
+    const sut = new DeleteCommentUseCase({ commentRepository: mockCommentRepository });
 
     // Act
     await sut.execute('comment-123', 'thread-123', 'user-123');

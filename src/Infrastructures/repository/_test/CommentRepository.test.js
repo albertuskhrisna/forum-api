@@ -1,3 +1,5 @@
+const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const pool = require('../../database/postgres/pool');
 const CreateComment = require('../../../Domains/comments/entities/CreateComment');
@@ -8,6 +10,8 @@ const ForbiddenError = require('../../../Commons/exceptions/ForbiddenError');
 describe('ThreadRepositoryPostgres', () => {
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
@@ -32,6 +36,54 @@ describe('ThreadRepositoryPostgres', () => {
       // Assert
       const addedThread = await CommentsTableTestHelper.findCommentById('comment-123');
       expect(addedThread).toHaveLength(1);
+    });
+  });
+
+  describe('getCommentByThreadId function', () => {
+    it('should return array of comment from specific thread when found', async () => {
+      // Arrange
+      const sut = new CommentRepositoryPostgres(pool, {});
+      const threadId = 'thread-123';
+      const expectedComments = [
+        {
+          id: 'comment-123',
+          username: 'albert',
+          date: new Date('2021-08-08T07:22:33.555Z'),
+          content: 'sebuah comment',
+          is_deleted: false,
+        },
+        {
+          id: 'comment-234',
+          username: 'albert',
+          date: new Date('2021-08-08T07:22:33.555Z'),
+          content: 'sebuah comment',
+          is_deleted: true,
+        },
+      ];
+
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
+      await UsersTableTestHelper.addUser({ id: 'user-123' });
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-123',
+        content: 'sebuah comment',
+        threadId: 'thread-123',
+        userId: 'user-123',
+        date: '2021-08-08T07:22:33.555Z',
+      });
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-234',
+        content: 'sebuah comment',
+        threadId: 'thread-123',
+        userId: 'user-123',
+        date: '2021-08-08T07:22:33.555Z',
+        isDeleted: true,
+      });
+
+      // Act
+      const actual = await sut.getCommentByThreadId(threadId);
+
+      // Assert
+      expect(actual).toStrictEqual(expectedComments);
     });
   });
 

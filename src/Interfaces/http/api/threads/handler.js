@@ -1,10 +1,24 @@
 const AddThreadUseCase = require('../../../../Applications/useCases/AddThreadUseCase');
 const AddCommentUseCase = require('../../../../Applications/useCases/AddCommentUseCase');
 const DeleteCommentUseCase = require('../../../../Applications/useCases/DeleteCommentUseCase');
+const GetThreadDetailUseCase = require('../../../../Applications/useCases/GetThreadDetailUseCase');
 
 class ThreadsHandler {
   constructor(container) {
     this._container = container;
+  }
+
+  async getThreadByIdHandler(request) {
+    const getThreadDetailUseCase = this._container.getInstance(GetThreadDetailUseCase.name);
+    const { threadId } = request.params;
+    const thread = await getThreadDetailUseCase.execute(threadId);
+
+    return {
+      status: 'success',
+      data: {
+        thread,
+      },
+    };
   }
 
   async postThreadHandler(request, h) {
