@@ -7,7 +7,7 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const ForbiddenError = require('../../../Commons/exceptions/ForbiddenError');
 
-describe('ThreadRepositoryPostgres', () => {
+describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
