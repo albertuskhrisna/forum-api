@@ -29,6 +29,22 @@ const routes = (handler) => (
         auth: 'forumapi_jwt',
       },
     },
+    {
+      method: 'POST',
+      path: '/threads/{threadId}/comments/{commentId}/replies',
+      handler: (request, h) => handler.postCommentReplyHandler(request, h),
+      options: {
+        auth: 'forumapi_jwt',
+      },
+    },
+    {
+      method: 'DELETE',
+      path: '/threads/{threadId}/comments/{commentId}/replies/{replyId}',
+      handler: (request) => handler.deleteCommentReplyHandler(request),
+      options: {
+        auth: 'forumapi_jwt',
+      },
+    },
   ]
 );
 
