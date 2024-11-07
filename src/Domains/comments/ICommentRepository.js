@@ -7,11 +7,11 @@ class ICommentRepository {
     throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async checkCommentAvailability(threadId, commentId) {
+  async checkCommentAvailability(commentId, threadId) {
     throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async checkCommentOwner(userId, commentId) {
+  async checkCommentOwner(commentId, userId) {
     throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
