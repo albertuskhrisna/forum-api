@@ -36,6 +36,9 @@ describe('ReplyRepositoryPostgres', () => {
       // Assert
       const addedReply = await RepliesTableTestHelper.findReplyById('reply-123');
       expect(addedReply).toHaveLength(1);
+      expect(addedReply[0].id).toEqual('reply-123');
+      expect(addedReply[0].content).toEqual('a reply content');
+      expect(addedReply[0].owner_id).toEqual('user-123');
     });
   });
 
@@ -48,14 +51,14 @@ describe('ReplyRepositoryPostgres', () => {
         {
           id: 'reply-234',
           username: 'albert',
-          date: new Date('2021-08-08T07:22:33.555Z'),
+          date: '2021-08-08T07:22:33.555Z',
           content: 'sebuah reply',
           is_deleted: true,
         },
         {
           id: 'reply-123',
           username: 'albert',
-          date: new Date('2021-08-08T07:25:33.555Z'),
+          date: '2021-08-08T07:25:33.555Z',
           content: 'sebuah reply',
           is_deleted: false,
         },

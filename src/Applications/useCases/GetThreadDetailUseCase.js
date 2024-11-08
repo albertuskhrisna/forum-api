@@ -16,14 +16,14 @@ class GetThreadDetailUseCase {
       repliesDb.map((reply) => replies.push({
         id: reply.id,
         content: reply.is_deleted ? '**balasan telah dihapus**' : reply.content,
-        date: reply.date.toISOString(),
+        date: reply.date,
         username: reply.username,
       }));
 
       comments.push({
         id: comment.id,
         username: comment.username,
-        date: comment.date.toISOString(),
+        date: comment.date,
         replies,
         content: comment.is_deleted ? '**komentar telah dihapus**' : comment.content,
       });

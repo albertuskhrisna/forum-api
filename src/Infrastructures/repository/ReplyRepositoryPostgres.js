@@ -31,8 +31,9 @@ class ReplyRepositoryPostgres extends IReplyRepository {
 
   async getRepliesByCommentId(commentId) {
     const query = {
-      text: `SELECT replies.id, replies.content, timezone('UTC', replies.date) AS date, 
-        replies.is_deleted, users.username FROM replies JOIN users ON replies.owner_id = users.id
+      text: `SELECT replies.id, replies.content, replies.is_deleted, users.username,
+        TO_CHAR(timezone('UTC', replies.date), 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS date
+        FROM replies JOIN users ON replies.owner_id = users.id
         WHERE replies.comment_id = $1 ORDER BY date ASC`,
       values: [commentId],
     };

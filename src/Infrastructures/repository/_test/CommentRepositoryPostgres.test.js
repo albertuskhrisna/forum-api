@@ -36,6 +36,9 @@ describe('CommentRepositoryPostgres', () => {
       // Assert
       const addedThread = await CommentsTableTestHelper.findCommentById('comment-123');
       expect(addedThread).toHaveLength(1);
+      expect(addedThread[0].id).toEqual('comment-123');
+      expect(addedThread[0].content).toEqual('a comment content');
+      expect(addedThread[0].owner_id).toEqual('user-123');
     });
   });
 
@@ -48,14 +51,14 @@ describe('CommentRepositoryPostgres', () => {
         {
           id: 'comment-234',
           username: 'albert',
-          date: new Date('2021-08-08T07:22:33.555Z'),
+          date: '2021-08-08T07:22:33.555Z',
           content: 'sebuah comment',
           is_deleted: true,
         },
         {
           id: 'comment-123',
           username: 'albert',
-          date: new Date('2021-08-08T07:25:33.555Z'),
+          date: '2021-08-08T07:25:33.555Z',
           content: 'sebuah comment',
           is_deleted: false,
         },

@@ -33,6 +33,9 @@ describe('ThreadRepositoryPostgres', () => {
       // Assert
       const addedThread = await ThreadsTableTestHelper.findThreadById('thread-123');
       expect(addedThread).toHaveLength(1);
+      expect(addedThread[0].id).toEqual('thread-123');
+      expect(addedThread[0].title).toEqual('thread title');
+      expect(addedThread[0].owner_id).toEqual('user-123');
     });
   });
 
@@ -78,7 +81,7 @@ describe('ThreadRepositoryPostgres', () => {
         id: 'thread-123',
         title: 'a thread',
         body: 'thread body',
-        date: new Date('2024-10-30T08:00:00.000Z'),
+        date: '2024-10-30T08:00:00.000Z',
         username: 'albert',
       };
       await ThreadsTableTestHelper.addThread({ id: expectedThread.id, userId: 'user-123' });
