@@ -6,6 +6,7 @@ const CreateReply = require('../../../Domains/replies/entities/CreateReply');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const ForbiddenError = require('../../../Commons/exceptions/ForbiddenError');
+const CreatedReply = require('../../../Domains/replies/entities/CreatedReply');
 
 describe('ReplyRepositoryPostgres', () => {
   afterEach(async () => {
@@ -31,14 +32,13 @@ describe('ReplyRepositoryPostgres', () => {
       const sut = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
 
       // Act
-      await sut.addReply(createReply);
+      const actual = await sut.addReply(createReply);
 
       // Assert
-      const addedReply = await RepliesTableTestHelper.findReplyById('reply-123');
-      expect(addedReply).toHaveLength(1);
-      expect(addedReply[0].id).toEqual('reply-123');
-      expect(addedReply[0].content).toEqual('a reply content');
-      expect(addedReply[0].owner_id).toEqual('user-123');
+      expect(actual).toBeInstanceOf(CreatedReply);
+      expect(actual.id).toEqual('reply-123');
+      expect(actual.content).toEqual('a reply content');
+      expect(actual.owner).toEqual('user-123');
     });
   });
 

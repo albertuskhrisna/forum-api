@@ -4,6 +4,7 @@ const pool = require('../../database/postgres/pool');
 const CreateThread = require('../../../Domains/threads/entities/CreateThread');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
+const CreatedThread = require('../../../Domains/threads/entities/CreatedThread');
 
 describe('ThreadRepositoryPostgres', () => {
   afterEach(async () => {
@@ -28,14 +29,13 @@ describe('ThreadRepositoryPostgres', () => {
       const sut = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
 
       // Act
-      await sut.addThread(createThread);
+      const actual = await sut.addThread(createThread);
 
       // Assert
-      const addedThread = await ThreadsTableTestHelper.findThreadById('thread-123');
-      expect(addedThread).toHaveLength(1);
-      expect(addedThread[0].id).toEqual('thread-123');
-      expect(addedThread[0].title).toEqual('thread title');
-      expect(addedThread[0].owner_id).toEqual('user-123');
+      expect(actual).toBeInstanceOf(CreatedThread);
+      expect(actual.id).toEqual('thread-123');
+      expect(actual.title).toEqual('thread title');
+      expect(actual.owner).toEqual('user-123');
     });
   });
 

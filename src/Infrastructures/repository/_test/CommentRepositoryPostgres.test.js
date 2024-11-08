@@ -6,6 +6,7 @@ const CreateComment = require('../../../Domains/comments/entities/CreateComment'
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const ForbiddenError = require('../../../Commons/exceptions/ForbiddenError');
+const CreatedComment = require('../../../Domains/comments/entities/CreatedComment');
 
 describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
@@ -31,14 +32,13 @@ describe('CommentRepositoryPostgres', () => {
       const sut = new CommentRepositoryPostgres(pool, fakeIdGenerator);
 
       // Act
-      await sut.addComment(createComment);
+      const actual = await sut.addComment(createComment);
 
       // Assert
-      const addedThread = await CommentsTableTestHelper.findCommentById('comment-123');
-      expect(addedThread).toHaveLength(1);
-      expect(addedThread[0].id).toEqual('comment-123');
-      expect(addedThread[0].content).toEqual('a comment content');
-      expect(addedThread[0].owner_id).toEqual('user-123');
+      expect(actual).toBeInstanceOf(CreatedComment);
+      expect(actual.id).toEqual('comment-123');
+      expect(actual.content).toEqual('a comment content');
+      expect(actual.owner).toEqual('user-123');
     });
   });
 

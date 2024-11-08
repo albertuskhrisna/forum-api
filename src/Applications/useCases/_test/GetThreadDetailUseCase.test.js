@@ -96,5 +96,7 @@ describe('Get Thread Detail use case', () => {
 
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith('thread-123');
     expect(mockCommentRepository.getCommentByThreadId).toHaveBeenCalledWith('thread-123');
+    expect(mockReplyRepository.getRepliesByCommentId).toHaveBeenCalledWith('comment-123');
+    expect(mockReplyRepository.getRepliesByCommentId).toHaveBeenCalledWith('comment-234');
   });
 });
