@@ -35,6 +35,8 @@ describe('ReplyRepositoryPostgres', () => {
       const actual = await sut.addReply(createReply);
 
       // Assert
+      const addedReply = await RepliesTableTestHelper.findReplyById('reply-123');
+      expect(addedReply).toHaveLength(1);
       expect(actual).toBeInstanceOf(CreatedReply);
       expect(actual.id).toEqual('reply-123');
       expect(actual.content).toEqual('a reply content');

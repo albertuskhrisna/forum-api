@@ -35,6 +35,8 @@ describe('CommentRepositoryPostgres', () => {
       const actual = await sut.addComment(createComment);
 
       // Assert
+      const addedThread = await CommentsTableTestHelper.findCommentById('comment-123');
+      expect(addedThread).toHaveLength(1);
       expect(actual).toBeInstanceOf(CreatedComment);
       expect(actual.id).toEqual('comment-123');
       expect(actual.content).toEqual('a comment content');

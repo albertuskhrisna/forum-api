@@ -32,6 +32,8 @@ describe('ThreadRepositoryPostgres', () => {
       const actual = await sut.addThread(createThread);
 
       // Assert
+      const addedThread = await ThreadsTableTestHelper.findThreadById('thread-123');
+      expect(addedThread).toHaveLength(1);
       expect(actual).toBeInstanceOf(CreatedThread);
       expect(actual.id).toEqual('thread-123');
       expect(actual.title).toEqual('thread title');
