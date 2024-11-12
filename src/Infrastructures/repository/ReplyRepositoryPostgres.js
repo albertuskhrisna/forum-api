@@ -14,10 +14,10 @@ class ReplyRepositoryPostgres extends IReplyRepository {
   async addReply(createReply) {
     const { content, commentId, owner } = createReply;
     const id = `reply-${this._idGenerator()}`;
-    const date = new Date().toISOString();
     const query = {
-      text: 'INSERT INTO replies VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner_id',
-      values: [id, content, date, commentId, owner],
+      text: `INSERT INTO replies (id, content, comment_id, owner_id)
+        VALUES($1, $2, $3, $4) RETURNING id, content, owner_id`,
+      values: [id, content, commentId, owner],
     };
 
     const result = await this._pool.query(query);

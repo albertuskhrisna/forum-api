@@ -102,10 +102,11 @@ describe('/threads endpoint', () => {
     it('should response 200 and return thread detail', async () => {
       // Arrange
       const server = await createServer(container);
-      await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
+
       await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-123' });
-      await RepliesTableTestHelper.addReply({ id: 'reply-123' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
+      await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', userId: 'user-123' });
 
       // Act
       const response = await server.inject({
@@ -248,6 +249,8 @@ describe('/threads endpoint', () => {
       // Arrange
       const server = await createServer(container);
       const accessToken = await ServerTestHelper.getAccessToken();
+
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
 
       // Act
@@ -269,6 +272,9 @@ describe('/threads endpoint', () => {
       // Arrange
       const server = await createServer(container);
       const accessToken = await ServerTestHelper.getAccessToken();
+
+      await UsersTableTestHelper.addUser({ id: 'user-234', username: 'user-234' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-234' });
 
       // Act
@@ -291,6 +297,7 @@ describe('/threads endpoint', () => {
       // Arrange
       const server = await createServer(container);
       const accessToken = await ServerTestHelper.getAccessToken();
+      await ThreadsTableTestHelper.addThread({ id: 'thread-234', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-234', threadId: 'thread-234', userId: 'user-123' });
 
       // Act
@@ -418,6 +425,7 @@ describe('/threads endpoint', () => {
       // Arrange
       const server = await createServer(container);
       const accessToken = await ServerTestHelper.getAccessToken();
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
       await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', userId: 'user-123' });
 
@@ -440,6 +448,8 @@ describe('/threads endpoint', () => {
       // Arrange
       const server = await createServer(container);
       const accessToken = await ServerTestHelper.getAccessToken();
+      await UsersTableTestHelper.addUser({ id: 'user-234', username: 'user-234' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
       await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', userId: 'user-234' });
 
@@ -463,7 +473,9 @@ describe('/threads endpoint', () => {
       // Arrange
       const server = await createServer(container);
       const accessToken = await ServerTestHelper.getAccessToken();
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-234', threadId: 'thread-123', userId: 'user-123' });
       await RepliesTableTestHelper.addReply({ id: 'reply-234', commentId: 'comment-234', userId: 'user-123' });
 
       // Act

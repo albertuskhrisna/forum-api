@@ -29,7 +29,7 @@ const RepliesTableTestHelper = {
   },
 
   async cleanTable() {
-    await pool.query('TRUNCATE TABLE replies');
+    await pool.query('TRUNCATE TABLE replies CASCADE');
   },
 };
 

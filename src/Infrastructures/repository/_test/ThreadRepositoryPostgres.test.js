@@ -25,8 +25,15 @@ describe('ThreadRepositoryPostgres', () => {
         owner: 'user-123',
       });
 
+      const expectedCreatedThread = new CreatedThread({
+        id: 'thread-123',
+        title: 'thread title',
+        owner: 'user-123',
+      });
+
       const fakeIdGenerator = () => '123';
       const sut = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
+      await UsersTableTestHelper.addUser({ id: 'user-123' });
 
       // Act
       const actual = await sut.addThread(createThread);
@@ -35,9 +42,7 @@ describe('ThreadRepositoryPostgres', () => {
       const addedThread = await ThreadsTableTestHelper.findThreadById('thread-123');
       expect(addedThread).toHaveLength(1);
       expect(actual).toBeInstanceOf(CreatedThread);
-      expect(actual.id).toEqual('thread-123');
-      expect(actual.title).toEqual('thread title');
-      expect(actual.owner).toEqual('user-123');
+      expect(actual).toStrictEqual(expectedCreatedThread);
     });
   });
 
@@ -56,7 +61,8 @@ describe('ThreadRepositoryPostgres', () => {
       // Arrange
       const sut = new ThreadRepositoryPostgres(pool, {});
       const threadId = 'thread-123';
-      await ThreadsTableTestHelper.addThread({ id: threadId });
+      await UsersTableTestHelper.addUser({ id: 'user-123' });
+      await ThreadsTableTestHelper.addThread({ id: threadId, userId: 'user-123' });
 
       // Act & Assert
       await expect(sut.checkThreadAvailability(threadId))
@@ -86,8 +92,8 @@ describe('ThreadRepositoryPostgres', () => {
         date: '2024-10-30T08:00:00.000Z',
         username: 'albert',
       };
-      await ThreadsTableTestHelper.addThread({ id: expectedThread.id, userId: 'user-123' });
       await UsersTableTestHelper.addUser({ id: 'user-123' });
+      await ThreadsTableTestHelper.addThread({ id: expectedThread.id, userId: 'user-123' });
 
       // Act
       const actual = await sut.getThreadById(threadId);

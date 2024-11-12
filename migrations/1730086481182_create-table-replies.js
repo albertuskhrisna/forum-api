@@ -1,9 +1,4 @@
 /**
- * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
- */
-exports.shorthands = undefined;
-
-/**
  * @param pgm {import('node-pg-migrate').MigrationBuilder}
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
@@ -21,6 +16,7 @@ exports.up = (pgm) => {
     date: {
       type: 'TIMESTAMP',
       notNull: true,
+      default: pgm.func('current_timestamp'),
     },
     comment_id: {
       type: 'VARCHAR(50)',
@@ -36,6 +32,9 @@ exports.up = (pgm) => {
       default: false,
     },
   });
+
+  pgm.addConstraint('replies', 'fk_replies.comment_id_comments.id', 'FOREIGN KEY(comment_id) REFERENCES comments(id) ON DELETE CASCADE');
+  pgm.addConstraint('replies', 'fk_replies.owner_id_users.id', 'FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE CASCADE');
 };
 
 /**

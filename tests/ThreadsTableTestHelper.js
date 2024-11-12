@@ -28,7 +28,7 @@ const ThreadsTableTestHelper = {
   },
 
   async cleanTable() {
-    await pool.query('TRUNCATE TABLE threads');
+    await pool.query('TRUNCATE TABLE threads CASCADE');
   },
 };
 

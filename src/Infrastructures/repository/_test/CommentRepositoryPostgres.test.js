@@ -28,8 +28,16 @@ describe('CommentRepositoryPostgres', () => {
         owner: 'user-123',
       });
 
+      const expectedCreatedComment = new CreatedComment({
+        id: 'comment-123',
+        content: 'a comment content',
+        owner: 'user-123',
+      });
+
       const fakeIdGenerator = () => '123';
       const sut = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      await UsersTableTestHelper.addUser({ id: 'user-123' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
 
       // Act
       const actual = await sut.addComment(createComment);
@@ -38,9 +46,7 @@ describe('CommentRepositoryPostgres', () => {
       const addedThread = await CommentsTableTestHelper.findCommentById('comment-123');
       expect(addedThread).toHaveLength(1);
       expect(actual).toBeInstanceOf(CreatedComment);
-      expect(actual.id).toEqual('comment-123');
-      expect(actual.content).toEqual('a comment content');
-      expect(actual.owner).toEqual('user-123');
+      expect(actual).toStrictEqual(expectedCreatedComment);
     });
   });
 
@@ -66,8 +72,8 @@ describe('CommentRepositoryPostgres', () => {
         },
       ];
 
-      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await UsersTableTestHelper.addUser({ id: 'user-123' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({
         id: 'comment-123',
         content: 'sebuah comment',
@@ -109,7 +115,11 @@ describe('CommentRepositoryPostgres', () => {
       const sut = new CommentRepositoryPostgres(pool, {});
       const commentId = 'comment-123';
       const threadId = 'thread-123';
-      await CommentsTableTestHelper.addComment({ id: commentId, threadId });
+      const userId = 'user-123';
+
+      await UsersTableTestHelper.addUser({ id: userId });
+      await ThreadsTableTestHelper.addThread({ id: threadId, userId });
+      await CommentsTableTestHelper.addComment({ id: commentId, threadId, userId });
 
       // Act & Assert
       await expect(sut.checkCommentAvailability(commentId, threadId))
@@ -122,8 +132,13 @@ describe('CommentRepositoryPostgres', () => {
       // Arrange
       const sut = new CommentRepositoryPostgres(pool, {});
       const commentId = 'comment-123';
+      const threadId = 'thread-123';
       const userId = 'user-123';
-      await CommentsTableTestHelper.addComment({ id: commentId, userId: 'user-234' });
+
+      await UsersTableTestHelper.addUser({ id: userId });
+      await UsersTableTestHelper.addUser({ id: 'user-234', username: 'user-234' });
+      await ThreadsTableTestHelper.addThread({ id: threadId });
+      await CommentsTableTestHelper.addComment({ id: commentId, threadId, userId: 'user-234' });
 
       // Act & Assert
       await expect(sut.checkCommentOwner(commentId, userId))
@@ -134,8 +149,12 @@ describe('CommentRepositoryPostgres', () => {
       // Arrange
       const sut = new CommentRepositoryPostgres(pool, {});
       const commentId = 'comment-123';
+      const threadId = 'thread-123';
       const userId = 'user-123';
-      await CommentsTableTestHelper.addComment({ id: commentId, userId });
+
+      await UsersTableTestHelper.addUser({ id: userId });
+      await ThreadsTableTestHelper.addThread({ id: threadId });
+      await CommentsTableTestHelper.addComment({ id: commentId, threadId, userId });
 
       // Act & Assert
       await expect(sut.checkCommentOwner(commentId, userId))

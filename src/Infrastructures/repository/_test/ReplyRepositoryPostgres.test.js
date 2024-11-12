@@ -1,4 +1,5 @@
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const RepliesTableTestHelper = require('../../../../tests/RepliesTableTestHelper');
 const pool = require('../../database/postgres/pool');
@@ -12,6 +13,7 @@ describe('ReplyRepositoryPostgres', () => {
   afterEach(async () => {
     await RepliesTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
   });
 
@@ -28,8 +30,18 @@ describe('ReplyRepositoryPostgres', () => {
         owner: 'user-123',
       });
 
+      const expectedCreatedReply = new CreatedReply({
+        id: 'reply-123',
+        content: 'a reply content',
+        owner: 'user-123',
+      });
+
       const fakeIdGenerator = () => '123';
       const sut = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
+
+      await UsersTableTestHelper.addUser({ id: 'user-123' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
 
       // Act
       const actual = await sut.addReply(createReply);
@@ -38,9 +50,7 @@ describe('ReplyRepositoryPostgres', () => {
       const addedReply = await RepliesTableTestHelper.findReplyById('reply-123');
       expect(addedReply).toHaveLength(1);
       expect(actual).toBeInstanceOf(CreatedReply);
-      expect(actual.id).toEqual('reply-123');
-      expect(actual.content).toEqual('a reply content');
-      expect(actual.owner).toEqual('user-123');
+      expect(actual).toStrictEqual(expectedCreatedReply);
     });
   });
 
@@ -67,7 +77,8 @@ describe('ReplyRepositoryPostgres', () => {
       ];
 
       await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
       await RepliesTableTestHelper.addReply({
         id: 'reply-123',
         content: 'sebuah reply',
@@ -109,6 +120,12 @@ describe('ReplyRepositoryPostgres', () => {
       const sut = new ReplyRepositoryPostgres(pool, {});
       const replyId = 'reply-123';
       const commentId = 'comment-123';
+      const threadId = 'thread-123';
+      const userId = 'user-123';
+
+      await UsersTableTestHelper.addUser({ id: userId });
+      await ThreadsTableTestHelper.addThread({ id: threadId, userId });
+      await CommentsTableTestHelper.addComment({ id: commentId, threadId, userId });
       await RepliesTableTestHelper.addReply({ id: replyId, commentId });
 
       // Act & Assert
@@ -122,7 +139,14 @@ describe('ReplyRepositoryPostgres', () => {
       // Arrange
       const sut = new ReplyRepositoryPostgres(pool, {});
       const replyId = 'reply-123';
+      const commentId = 'comment-123';
+      const threadId = 'thread-123';
       const userId = 'user-123';
+
+      await UsersTableTestHelper.addUser({ id: userId });
+      await UsersTableTestHelper.addUser({ id: 'user-234', username: 'user-234' });
+      await ThreadsTableTestHelper.addThread({ id: threadId, userId });
+      await CommentsTableTestHelper.addComment({ id: commentId, threadId, userId });
       await RepliesTableTestHelper.addReply({ id: replyId, userId: 'user-234' });
 
       // Act & Assert
@@ -133,9 +157,15 @@ describe('ReplyRepositoryPostgres', () => {
     it('should not throw ForbiddenError when user is the owner of reply', async () => {
       // Arrange
       const sut = new ReplyRepositoryPostgres(pool, {});
+      const threadId = 'thread-123';
+      const commentId = 'comment-123';
       const replyId = 'reply-123';
       const userId = 'user-123';
-      await RepliesTableTestHelper.addReply({ id: replyId, userId });
+
+      await UsersTableTestHelper.addUser({ id: userId });
+      await ThreadsTableTestHelper.addThread({ id: threadId });
+      await CommentsTableTestHelper.addComment({ id: commentId, threadId, userId });
+      await RepliesTableTestHelper.addReply({ id: replyId, commentId, userId });
 
       // Act & Assert
       await expect(sut.checkReplyOwner(replyId, userId))
