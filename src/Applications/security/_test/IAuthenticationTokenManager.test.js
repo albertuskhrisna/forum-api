@@ -5,7 +5,7 @@ describe('An AuthenticationTokenManger interface', () => {
     // Arrange
     const authenticationTokenManger = new IAuthenticationTokenManager();
 
-    // Assert
+    // Act & Assert
     await expect(() => authenticationTokenManger.createAccessToken('')).rejects.toThrow(Error('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED'));
     await expect(() => authenticationTokenManger.createRefreshToken('')).rejects.toThrow(Error('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED'));
     await expect(() => authenticationTokenManger.verifyRefreshToken('')).rejects.toThrow(Error('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED'));

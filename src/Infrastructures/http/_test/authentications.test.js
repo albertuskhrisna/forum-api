@@ -7,8 +7,8 @@ const IAuthenticationTokenManager = require('../../../Applications/security/IAut
 
 describe('/authentications endpoint', () => {
   afterEach(async () => {
-    await UsersTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
@@ -18,26 +18,29 @@ describe('/authentications endpoint', () => {
   describe('when POST /authentications', () => {
     it('should response 201 and persisted token', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerUserPayload = {
+        username: 'albert',
+        password: 'secret',
+        fullname: 'Albertus Khrisna',
+      };
+
+      const fakerLoginPayload = {
         username: 'albert',
         password: 'secret',
       };
+
       const server = await createServer(container);
       await server.inject({
         method: 'POST',
         url: '/users',
-        payload: {
-          username: 'albert',
-          password: 'secret',
-          fullname: 'Albertus Khrisna',
-        },
+        payload: fakerUserPayload,
       });
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerLoginPayload,
       });
 
       // Assert
@@ -50,7 +53,7 @@ describe('/authentications endpoint', () => {
 
     it('should response 400 when login payload not contain needed property', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerLoginPayload = {
         username: 'albert',
       };
       const server = await createServer(container);
@@ -59,7 +62,7 @@ describe('/authentications endpoint', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerLoginPayload,
       });
 
       // Assert
@@ -71,7 +74,7 @@ describe('/authentications endpoint', () => {
 
     it('should response 400 when login payload has wrong data type', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerLoginPayload = {
         username: 'albert',
         password: 123,
       };
@@ -81,7 +84,7 @@ describe('/authentications endpoint', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerLoginPayload,
       });
 
       // Assert
@@ -93,7 +96,7 @@ describe('/authentications endpoint', () => {
 
     it('should response 400 when user not found', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerLoginPayload = {
         username: 'albertus',
         password: 'secret',
       };
@@ -103,7 +106,7 @@ describe('/authentications endpoint', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerLoginPayload,
       });
 
       // Assert
@@ -115,26 +118,29 @@ describe('/authentications endpoint', () => {
 
     it('should response 401 when password is wrong', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerUserPayload = {
+        username: 'albert',
+        password: 'secret',
+        fullname: 'Albertus Khrisna',
+      };
+
+      const fakerLoginPayload = {
         username: 'albert',
         password: 'wrong_password',
       };
+
       const server = await createServer(container);
       await server.inject({
         method: 'POST',
         url: '/users',
-        payload: {
-          username: 'albert',
-          password: 'secret',
-          fullname: 'Albertus Khrisna',
-        },
+        payload: fakerUserPayload,
       });
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerLoginPayload,
       });
 
       // Assert
@@ -148,35 +154,39 @@ describe('/authentications endpoint', () => {
   describe('when PUT /authentications', () => {
     it('should response 200 and return new access token', async () => {
       // Arrange
+      const fakerUserPayload = {
+        username: 'albert',
+        password: 'secret',
+        fullname: 'Albertus Khrisna',
+      };
+
+      const fakerLoginPayload = {
+        username: 'albert',
+        password: 'secret',
+      };
+
       const server = await createServer(container);
 
       await server.inject({
         method: 'POST',
         url: '/users',
-        payload: {
-          username: 'albert',
-          password: 'secret',
-          fullname: 'Albertus Khrisna',
-        },
+        payload: fakerUserPayload,
       });
 
-      const loginResponse = await server.inject({
+      const fakerLoginResponse = await server.inject({
         method: 'POST',
         url: '/authentications',
-        payload: {
-          username: 'albert',
-          password: 'secret',
-        },
+        payload: fakerLoginPayload,
       });
 
-      const { data: { refreshToken } } = JSON.parse(loginResponse.payload);
-      const requestPayload = { refreshToken };
+      const { data: { refreshToken } } = JSON.parse(fakerLoginResponse.payload);
+      const fakerRefreshTokenPayload = { refreshToken };
 
       // Act
       const response = await server.inject({
         method: 'PUT',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerRefreshTokenPayload,
       });
 
       // Assert
@@ -188,14 +198,14 @@ describe('/authentications endpoint', () => {
 
     it('should response 400 when payload not contain refresh token', async () => {
       // Arrange
+      const fakerRefreshTokenPayload = {};
       const server = await createServer(container);
-      const requestPayload = {};
 
       // Act
       const response = await server.inject({
         method: 'PUT',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerRefreshTokenPayload,
       });
 
       // Assert
@@ -207,14 +217,14 @@ describe('/authentications endpoint', () => {
 
     it('should response 400 when refresh token has wrong data type', async () => {
       // Arrange
+      const fakerRefreshToken = { refreshToken: 123 };
       const server = await createServer(container);
-      const requestPayload = { refreshToken: 123 };
 
       // Act
       const response = await server.inject({
         method: 'PUT',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerRefreshToken,
       });
 
       // Assert
@@ -226,14 +236,14 @@ describe('/authentications endpoint', () => {
 
     it('should response 400 when refresh token invalid', async () => {
       // Arrange
+      const fakerRefreshToken = { refreshToken: 'invalid_refresh_token' };
       const server = await createServer(container);
-      const requestPayload = { refreshToken: 'invalid_refresh_token' };
 
       // Act
       const response = await server.inject({
         method: 'PUT',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerRefreshToken,
       });
 
       // Assert
@@ -245,15 +255,15 @@ describe('/authentications endpoint', () => {
 
     it('should response 400 when refresh token not found in database', async () => {
       // Arrange
-      const server = await createServer(container);
       const refreshToken = await container.getInstance(IAuthenticationTokenManager.name).createRefreshToken({ id: 'user-123', username: 'albert' });
-      const requestPayload = { refreshToken };
+      const fakerRefreshToken = { refreshToken };
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'PUT',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerRefreshToken,
       });
 
       // Assert
@@ -267,17 +277,17 @@ describe('/authentications endpoint', () => {
   describe('when DELETE /authentications', () => {
     it('should response 200 when refresh token is valid', async () => {
       // Arrange
-      const server = await createServer(container);
-      const requestPayload = {
+      await AuthenticationsTableTestHelper.addToken('refresh_token');
+      const fakerLogoutPayload = {
         refreshToken: 'refresh_token',
       };
-      await AuthenticationsTableTestHelper.addToken(requestPayload.refreshToken);
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'DELETE',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerLogoutPayload,
       });
 
       // Assert
@@ -288,16 +298,16 @@ describe('/authentications endpoint', () => {
 
     it('should response 400 when refresh token not found in database', async () => {
       // Arrange
-      const server = await createServer(container);
-      const requestPayload = {
+      const fakerLogoutPayload = {
         refreshToken: 'refresh_token',
       };
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'DELETE',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerLogoutPayload,
       });
 
       // Assert
@@ -309,14 +319,14 @@ describe('/authentications endpoint', () => {
 
     it('should response 400 when payload not contain refresh token', async () => {
       // Arrange
+      const fakerLogoutPayload = {};
       const server = await createServer(container);
-      const requestPayload = {};
 
       // Act
       const response = await server.inject({
         method: 'DELETE',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerLogoutPayload,
       });
 
       // Assert
@@ -328,14 +338,14 @@ describe('/authentications endpoint', () => {
 
     it('should response 400 when refresh token has wrong data type', async () => {
       // Arrange
+      const fakerLogoutPayload = { refreshToken: 123 };
       const server = await createServer(container);
-      const requestPayload = { refreshToken: 123 };
 
       // Act
       const response = await server.inject({
         method: 'DELETE',
         url: '/authentications',
-        payload: requestPayload,
+        payload: fakerLogoutPayload,
       });
 
       // Assert

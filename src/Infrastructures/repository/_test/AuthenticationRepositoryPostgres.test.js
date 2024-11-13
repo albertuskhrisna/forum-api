@@ -15,38 +15,38 @@ describe('AuthenticationRepositoryPostgres', () => {
   describe('addToken function', () => {
     it('should persist token to database', async () => {
       // Arrange
-      const authenticationRepositoryPostgres = new AuthenticationRepositoryPostgres(pool);
-      const token = 'token';
+      const fakerPayload = 'token';
+      const sut = new AuthenticationRepositoryPostgres(pool);
 
       // Act
-      await authenticationRepositoryPostgres.addToken(token);
+      await sut.addToken(fakerPayload);
 
       // Assert
-      const act = await AuthenticationsTableTestHelper.findToken(token);
-      expect(act).toHaveLength(1);
-      expect(act[0].token).toBe(token);
+      const actualDb = await AuthenticationsTableTestHelper.findToken(fakerPayload);
+      expect(actualDb).toHaveLength(1);
+      expect(actualDb[0].token).toBe(fakerPayload);
     });
   });
 
   describe('checkTokenAvailability function', () => {
     it('should throw InvariantError when token not found', async () => {
       // Arrange
-      const authenticationRepositoryPostgres = new AuthenticationRepositoryPostgres(pool);
-      const token = 'token';
+      const fakerPayload = 'token';
+      const sut = new AuthenticationRepositoryPostgres(pool);
 
       // Act & Assert
-      await expect(authenticationRepositoryPostgres.checkTokenAvailability(token))
+      await expect(sut.checkTokenAvailability(fakerPayload))
         .rejects.toThrow(InvariantError);
     });
 
     it('should not throw InvariantError when token found', async () => {
       // Arrange
-      const authenticationRepositoryPostgres = new AuthenticationRepositoryPostgres(pool);
-      const token = 'token';
-      await AuthenticationsTableTestHelper.addToken(token);
+      const fakerPayload = 'token';
+      await AuthenticationsTableTestHelper.addToken(fakerPayload);
+      const sut = new AuthenticationRepositoryPostgres(pool);
 
       // Act & Assert
-      await expect(authenticationRepositoryPostgres.checkTokenAvailability(token))
+      await expect(sut.checkTokenAvailability(fakerPayload))
         .resolves.not.toThrow(InvariantError);
     });
   });
@@ -54,16 +54,16 @@ describe('AuthenticationRepositoryPostgres', () => {
   describe('deleteToken function', () => {
     it('should delete token from database', async () => {
       // Arrange
-      const authenticationRepositoryPostgres = new AuthenticationRepositoryPostgres(pool);
-      const token = 'token';
-      await AuthenticationsTableTestHelper.addToken(token);
+      const fakerPayload = 'token';
+      await AuthenticationsTableTestHelper.addToken(fakerPayload);
+      const sut = new AuthenticationRepositoryPostgres(pool);
 
       // Act
-      await authenticationRepositoryPostgres.deleteToken(token);
+      await sut.deleteToken(fakerPayload);
 
       // Assert
-      const act = await AuthenticationsTableTestHelper.findToken(token);
-      expect(act).toHaveLength(0);
+      const actualDb = await AuthenticationsTableTestHelper.findToken(fakerPayload);
+      expect(actualDb).toHaveLength(0);
     });
   });
 });

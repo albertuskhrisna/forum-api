@@ -15,7 +15,7 @@ describe('/users endpoint', () => {
   describe('when POST /users', () => {
     it('should response 201 and persisted user', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerUserPayload = {
         username: 'albert',
         password: 'secret',
         fullname: 'Albertus Khrisna',
@@ -26,12 +26,11 @@ describe('/users endpoint', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/users',
-        payload: requestPayload,
+        payload: fakerUserPayload,
       });
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      // console.log(response);
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.addedUser).toBeDefined();
@@ -39,7 +38,7 @@ describe('/users endpoint', () => {
 
     it('should response 400 when request payload not contain needed property', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerUserPayload = {
         password: 'secret',
         fullname: 'Albertus Khrisna',
       };
@@ -49,7 +48,7 @@ describe('/users endpoint', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/users',
-        payload: requestPayload,
+        payload: fakerUserPayload,
       });
 
       // Assert
@@ -61,7 +60,7 @@ describe('/users endpoint', () => {
 
     it('should response 400 when request payload not meet data type specification', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerUserPayload = {
         username: 'albert',
         password: 'secret',
         fullname: ['Albertus Khrisna'],
@@ -72,7 +71,7 @@ describe('/users endpoint', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/users',
-        payload: requestPayload,
+        payload: fakerUserPayload,
       });
 
       // Assert
@@ -84,7 +83,7 @@ describe('/users endpoint', () => {
 
     it('should response 400 when username more than 50 character', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerUserPayload = {
         username: 'albertuskhrisnaalbertuskhrisnaalbertuskhrisnaalbertuskhrisna',
         password: 'secret',
         fullname: 'Albertus Khrisna',
@@ -95,7 +94,7 @@ describe('/users endpoint', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/users',
-        payload: requestPayload,
+        payload: fakerUserPayload,
       });
 
       // Assert
@@ -107,7 +106,7 @@ describe('/users endpoint', () => {
 
     it('should response 400 when username contain restricted character', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerUserPayload = {
         username: 'albert khrisna',
         password: 'secret',
         fullname: 'Albertus Khrisna',
@@ -118,7 +117,7 @@ describe('/users endpoint', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/users',
-        payload: requestPayload,
+        payload: fakerUserPayload,
       });
 
       // Assert
@@ -130,8 +129,8 @@ describe('/users endpoint', () => {
 
     it('should response 400 when username unavailable', async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ username: 'albert' });
-      const requestPayload = {
+      await UsersTableTestHelper.addUser({});
+      const fakerUserPayload = {
         username: 'albert',
         password: 'secret',
         fullname: 'Albertus Khrisna',
@@ -142,7 +141,7 @@ describe('/users endpoint', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/users',
-        payload: requestPayload,
+        payload: fakerUserPayload,
       });
 
       // Assert

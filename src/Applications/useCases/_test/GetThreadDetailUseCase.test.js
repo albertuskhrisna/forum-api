@@ -9,7 +9,7 @@ const RetrievedReply = require('../../../Domains/replies/entities/RetrievedReply
 describe('Get Thread Detail use case', () => {
   it('should return detail of a thread correctly', async () => {
     // Arrange
-    const expectedThread = {
+    const fakerThreadDb = {
       id: 'thread-123',
       title: 'sebuah thread',
       body: 'sebuah body thread',
@@ -17,7 +17,7 @@ describe('Get Thread Detail use case', () => {
       username: 'albert',
     };
 
-    const expectedComment = [
+    const fakerCommentDb = [
       {
         id: 'comment-123',
         username: 'johndoe',
@@ -34,7 +34,7 @@ describe('Get Thread Detail use case', () => {
       },
     ];
 
-    const expectedReplies = [
+    const fakerReplyDb = [
       {
         id: 'reply-123',
         username: 'johndoe',
@@ -53,12 +53,54 @@ describe('Get Thread Detail use case', () => {
       },
     ];
 
+    const expectedReturn = new RetrievedThread({
+      id: fakerThreadDb.id,
+      title: fakerThreadDb.title,
+      body: fakerThreadDb.body,
+      date: fakerThreadDb.date,
+      username: fakerThreadDb.username,
+      comments: [
+        new RetrievedComment({
+          id: fakerCommentDb[0].id,
+          username: fakerCommentDb[0].username,
+          date: fakerCommentDb[0].date,
+          content: fakerCommentDb[0].content,
+          isDeleted: fakerCommentDb[0].is_deleted,
+          replies: [
+            new RetrievedReply({
+              id: fakerReplyDb[0].id,
+              content: fakerReplyDb[0].content,
+              date: fakerReplyDb[0].date,
+              username: fakerReplyDb[0].username,
+              isDeleted: fakerReplyDb[0].is_deleted,
+            }),
+          ],
+        }),
+        new RetrievedComment({
+          id: fakerCommentDb[1].id,
+          username: fakerCommentDb[1].username,
+          date: fakerCommentDb[1].date,
+          content: fakerCommentDb[1].content,
+          isDeleted: fakerCommentDb[1].is_deleted,
+          replies: [
+            new RetrievedReply({
+              id: fakerReplyDb[1].id,
+              content: fakerReplyDb[1].content,
+              date: fakerReplyDb[1].date,
+              username: fakerReplyDb[1].username,
+              isDeleted: fakerReplyDb[1].is_deleted,
+            }),
+          ],
+        }),
+      ],
+    });
+
     const mockThreadRepository = new IThreadRepository();
     const mockCommentRepository = new ICommentRepository();
     const mockReplyRepository = new IReplyRepository();
-    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(expectedThread));
-    mockCommentRepository.getCommentByThreadId = jest.fn(() => Promise.resolve(expectedComment));
-    mockReplyRepository.getRepliesByCommentIds = jest.fn(() => Promise.resolve(expectedReplies));
+    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(fakerThreadDb));
+    mockCommentRepository.getCommentByThreadId = jest.fn(() => Promise.resolve(fakerCommentDb));
+    mockReplyRepository.getRepliesByCommentIds = jest.fn(() => Promise.resolve(fakerReplyDb));
 
     const sut = new GetThreadDetailUseCase({ threadRepository: mockThreadRepository, commentRepository: mockCommentRepository, replyRepository: mockReplyRepository });
 
@@ -66,48 +108,7 @@ describe('Get Thread Detail use case', () => {
     const actual = await sut.execute('thread-123');
 
     // Assert
-    expect(actual).toStrictEqual(new RetrievedThread({
-      id: expectedThread.id,
-      title: expectedThread.title,
-      body: expectedThread.body,
-      date: expectedThread.date,
-      username: expectedThread.username,
-      comments: [
-        new RetrievedComment({
-          id: expectedComment[0].id,
-          username: expectedComment[0].username,
-          date: expectedComment[0].date,
-          content: expectedComment[0].content,
-          isDeleted: expectedComment[0].is_deleted,
-          replies: [
-            new RetrievedReply({
-              id: expectedReplies[0].id,
-              content: expectedReplies[0].content,
-              date: expectedReplies[0].date,
-              username: expectedReplies[0].username,
-              isDeleted: expectedReplies[0].is_deleted,
-            }),
-          ],
-        }),
-        new RetrievedComment({
-          id: expectedComment[1].id,
-          username: expectedComment[1].username,
-          date: expectedComment[1].date,
-          content: expectedComment[1].content,
-          isDeleted: expectedComment[1].is_deleted,
-          replies: [
-            new RetrievedReply({
-              id: expectedReplies[1].id,
-              content: expectedReplies[1].content,
-              date: expectedReplies[1].date,
-              username: expectedReplies[1].username,
-              isDeleted: expectedReplies[1].is_deleted,
-            }),
-          ],
-        }),
-      ],
-    }));
-
+    expect(actual).toStrictEqual(expectedReturn);
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith('thread-123');
     expect(mockCommentRepository.getCommentByThreadId).toHaveBeenCalledWith('thread-123');
     expect(mockReplyRepository.getRepliesByCommentIds).toHaveBeenCalledWith(['comment-123', 'comment-234']);

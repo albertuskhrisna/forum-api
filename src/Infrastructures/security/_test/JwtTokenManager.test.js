@@ -6,29 +6,29 @@ describe('A JwtTokenManager', () => {
   describe('A createAccessToken function', () => {
     it('should create access token correctly', async () => {
       // Arrange
-      const payload = {
+      const fakerAccessTokenPayload = {
         username: 'albert',
       };
 
       const mockJwtToken = {
-        generate: jest.fn().mockImplementation(() => 'mock_token'),
+        generate: jest.fn(() => 'mock_token'),
       };
 
-      const jwtTokenManager = new JwtTokenManager(mockJwtToken);
+      const sut = new JwtTokenManager(mockJwtToken);
 
       // Act
-      const act = await jwtTokenManager.createAccessToken(payload);
+      const actual = await sut.createAccessToken(fakerAccessTokenPayload);
 
       // Assert
-      expect(mockJwtToken.generate).toHaveBeenCalledWith(payload, process.env.ACCESS_TOKEN_KEY);
-      expect(act).toEqual('mock_token');
+      expect(mockJwtToken.generate).toHaveBeenCalledWith(fakerAccessTokenPayload, process.env.ACCESS_TOKEN_KEY);
+      expect(actual).toEqual('mock_token');
     });
   });
 
   describe('A createRefreshToken function', () => {
     it('should create access token correctly', async () => {
       // Arrange
-      const payload = {
+      const fakerRefreshTokenPayload = {
         username: 'albert',
       };
 
@@ -36,35 +36,41 @@ describe('A JwtTokenManager', () => {
         generate: jest.fn().mockImplementation(() => 'mock_token'),
       };
 
-      const jwtTokenManager = new JwtTokenManager(mockJwtToken);
+      const sut = new JwtTokenManager(mockJwtToken);
 
       // Act
-      const act = await jwtTokenManager.createRefreshToken(payload);
+      const actual = await sut.createRefreshToken(fakerRefreshTokenPayload);
 
       // Assert
-      expect(mockJwtToken.generate).toHaveBeenCalledWith(payload, process.env.REFRESH_TOKEN_KEY);
-      expect(act).toEqual('mock_token');
+      expect(mockJwtToken.generate).toHaveBeenCalledWith(fakerRefreshTokenPayload, process.env.REFRESH_TOKEN_KEY);
+      expect(actual).toEqual('mock_token');
     });
   });
 
   describe('A verifyRefreshToken function', () => {
     it('should throw InvariantError when verification failed', async () => {
       // Arrange
-      const jwtTokenManager = new JwtTokenManager(Jwt.token);
-      const accessToken = await jwtTokenManager.createAccessToken({ username: 'albert' });
+      const fakerAccessTokenPayload = {
+        username: 'albert',
+      };
+      const sut = new JwtTokenManager(Jwt.token);
+      const accessToken = await sut.createAccessToken(fakerAccessTokenPayload);
 
       // Act & Assert
-      await expect(jwtTokenManager.verifyRefreshToken(accessToken))
+      await expect(sut.verifyRefreshToken(accessToken))
         .rejects.toThrow(InvariantError);
     });
 
     it('should not throw InvariantError when refresh token verified', async () => {
       // Arrange
-      const jwtTokenManager = new JwtTokenManager(Jwt.token);
-      const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'albert' });
+      const fakerRefreshTokenPayload = {
+        username: 'albert',
+      };
+      const sut = new JwtTokenManager(Jwt.token);
+      const refreshToken = await sut.createRefreshToken(fakerRefreshTokenPayload);
 
       // Act & Assert
-      await expect(jwtTokenManager.verifyRefreshToken(refreshToken))
+      await expect(sut.verifyRefreshToken(refreshToken))
         .resolves.not.toThrow(InvariantError);
     });
   });
@@ -72,14 +78,17 @@ describe('A JwtTokenManager', () => {
   describe('A decodePayload function', () => {
     it('should decode payload correctly', async () => {
       // Arrange
-      const jwtTokenManager = new JwtTokenManager(Jwt.token);
-      const accessToken = await jwtTokenManager.createAccessToken({ username: 'albert' });
+      const fakerAccessTokenPayload = {
+        username: 'albert',
+      };
+      const sut = new JwtTokenManager(Jwt.token);
+      const accessToken = await sut.createAccessToken(fakerAccessTokenPayload);
 
       // Act
-      const { username: act } = await jwtTokenManager.decodePayload(accessToken);
+      const { username: actual } = await sut.decodePayload(accessToken);
 
       // Assert
-      expect(act).toEqual('albert');
+      expect(actual).toEqual('albert');
     });
   });
 });

@@ -14,7 +14,7 @@ describe('A HTTP Server', () => {
 
   it('should handle server error correctly', async () => {
     // Arrange
-    const requestPayload = {
+    const fakerUserPayload = {
       username: 'albert',
       password: 'secret',
       fullname: 'Albertus Khrisna',
@@ -25,7 +25,7 @@ describe('A HTTP Server', () => {
     const response = await server.inject({
       method: 'POST',
       url: '/users',
-      payload: requestPayload,
+      payload: fakerUserPayload,
     });
 
     // Assert

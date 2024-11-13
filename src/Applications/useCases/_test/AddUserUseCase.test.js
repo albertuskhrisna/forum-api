@@ -7,16 +7,28 @@ const AddUserUseCase = require('../AddUserUseCase');
 describe('AddUser use case', () => {
   it('should orchestrating the add user action correctly', async () => {
     // Arrange
-    const payload = {
+    const useCasePayload = {
       username: 'albertus',
       password: 'secret',
       fullname: 'Albertus Khrisna',
     };
 
-    const expected = new RegisteredUser({
+    const fakerRegisterUser = new RegisterUser({
+      username: useCasePayload.username,
+      password: 'encrypted_password',
+      fullname: useCasePayload.fullname,
+    });
+
+    const fakerRegisteredUser = new RegisteredUser({
       id: 'user-123',
-      username: payload.username,
-      fullname: payload.fullname,
+      username: useCasePayload.username,
+      fullname: useCasePayload.fullname,
+    });
+
+    const expectedReturn = new RegisteredUser({
+      id: 'user-123',
+      username: useCasePayload.username,
+      fullname: useCasePayload.fullname,
     });
 
     const mockUserRepository = new IUserRepository();
@@ -24,7 +36,7 @@ describe('AddUser use case', () => {
 
     mockUserRepository.verifyAvailableUsername = jest.fn(() => Promise.resolve());
     mockPasswordHash.hash = jest.fn(() => Promise.resolve('encrypted_password'));
-    mockUserRepository.addUser = jest.fn(() => Promise.resolve(expected));
+    mockUserRepository.addUser = jest.fn(() => Promise.resolve(fakerRegisteredUser));
 
     const sut = new AddUserUseCase({
       userRepository: mockUserRepository,
@@ -32,21 +44,12 @@ describe('AddUser use case', () => {
     });
 
     // Act
-    const actual = await sut.execute(payload);
+    const actual = await sut.execute(useCasePayload);
 
     // Assert
-    expect(actual).toStrictEqual(new RegisteredUser({
-      id: expected.id,
-      username: expected.username,
-      fullname: expected.fullname,
-    }));
-
-    expect(mockUserRepository.verifyAvailableUsername).toHaveBeenCalledWith(payload.username);
-    expect(mockPasswordHash.hash).toHaveBeenCalledWith(payload.password);
-    expect(mockUserRepository.addUser).toHaveBeenCalledWith(new RegisterUser({
-      username: payload.username,
-      password: 'encrypted_password',
-      fullname: payload.fullname,
-    }));
+    expect(actual).toStrictEqual(expectedReturn);
+    expect(mockUserRepository.verifyAvailableUsername).toHaveBeenCalledWith(useCasePayload.username);
+    expect(mockPasswordHash.hash).toHaveBeenCalledWith(useCasePayload.password);
+    expect(mockUserRepository.addUser).toHaveBeenCalledWith(fakerRegisterUser);
   });
 });

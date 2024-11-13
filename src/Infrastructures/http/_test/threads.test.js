@@ -9,10 +9,10 @@ const createServer = require('../createServer');
 
 describe('/threads endpoint', () => {
   afterEach(async () => {
-    await UsersTableTestHelper.cleanTable();
-    await ThreadsTableTestHelper.cleanTable();
-    await CommentsTableTestHelper.cleanTable();
     await RepliesTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
@@ -22,18 +22,19 @@ describe('/threads endpoint', () => {
   describe('when POST /threads', () => {
     it('should response 201 and persisted thread', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerThreadPayload = {
         title: 'a thread title',
         body: 'some thread body',
       };
-      const server = await createServer(container);
+      await UsersTableTestHelper.addUser({});
       const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads',
-        payload: requestPayload,
+        payload: fakerThreadPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -48,17 +49,18 @@ describe('/threads endpoint', () => {
 
     it('should response 400 when request payload not contain needed property', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerThreadPayload = {
         title: 'a thread title',
       };
-      const server = await createServer(container);
+      await UsersTableTestHelper.addUser({});
       const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads',
-        payload: requestPayload,
+        payload: fakerThreadPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -73,18 +75,19 @@ describe('/threads endpoint', () => {
 
     it('should response 400 when request payload has wrong data type', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerThreadPayload = {
         title: 'a thread title',
         body: 123,
       };
-      const server = await createServer(container);
+      await UsersTableTestHelper.addUser({});
       const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads',
-        payload: requestPayload,
+        payload: fakerThreadPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -101,14 +104,11 @@ describe('/threads endpoint', () => {
   describe('when GET /threads/{threadId}', () => {
     it('should response 200 and return thread detail', async () => {
       // Arrange
-      const server = await createServer(container);
-
       await UsersTableTestHelper.addUser({ id: 'user-123' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
-      // await CommentsTableTestHelper.addComment({ id: 'comment-234', threadId: 'thread-123', userId: 'user-123' });
       await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', userId: 'user-123' });
-      // await RepliesTableTestHelper.addReply({ id: 'reply-234', commentId: 'comment-234', userId: 'user-123' });
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
@@ -148,18 +148,19 @@ describe('/threads endpoint', () => {
   describe('when POST /threads/{threadId}/comments', () => {
     it('should response 201 and persisted new comment on existing thread', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerCommentPayload = {
         content: 'some comment content',
       };
-      const server = await createServer(container);
-      const accessToken = await ServerTestHelper.getAccessToken();
+      await UsersTableTestHelper.addUser({});
       await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
+      const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads/thread-123/comments',
-        payload: requestPayload,
+        payload: fakerCommentPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -174,15 +175,16 @@ describe('/threads endpoint', () => {
 
     it('should response 400 when request payload not contain needed property', async () => {
       // Arrange
-      const requestPayload = {};
-      const server = await createServer(container);
+      const fakerCommentPayload = {};
+      await UsersTableTestHelper.addUser({});
       const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads/thread-123/comments',
-        payload: requestPayload,
+        payload: fakerCommentPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -197,17 +199,18 @@ describe('/threads endpoint', () => {
 
     it('should response 400 when request payload has wrong data type', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerCommentPayload = {
         content: 123,
       };
-      const server = await createServer(container);
+      await UsersTableTestHelper.addUser({});
       const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads/thread-123/comments',
-        payload: requestPayload,
+        payload: fakerCommentPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -222,17 +225,18 @@ describe('/threads endpoint', () => {
 
     it('should response 404 when thread not found', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerCommentPayload = {
         content: 'some comment content',
       };
-      const server = await createServer(container);
+      await UsersTableTestHelper.addUser({});
       const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads/thread-123/comments',
-        payload: requestPayload,
+        payload: fakerCommentPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -249,11 +253,11 @@ describe('/threads endpoint', () => {
   describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
     it('should response 200 and delete comment on existing thread', async () => {
       // Arrange
-      const server = await createServer(container);
-      const accessToken = await ServerTestHelper.getAccessToken();
-
+      await UsersTableTestHelper.addUser({});
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
+      const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
@@ -272,12 +276,13 @@ describe('/threads endpoint', () => {
 
     it('should response 403 when user is not comment owner', async () => {
       // Arrange
-      const server = await createServer(container);
-      const accessToken = await ServerTestHelper.getAccessToken();
-
+      await UsersTableTestHelper.addUser({});
       await UsersTableTestHelper.addUser({ id: 'user-234', username: 'user-234' });
-      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-234' });
+      await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({ userId: 'user-234' });
+
+      const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
@@ -297,10 +302,11 @@ describe('/threads endpoint', () => {
 
     it('should response 404 when thread/comment not found', async () => {
       // Arrange
-      const server = await createServer(container);
-      const accessToken = await ServerTestHelper.getAccessToken();
+      await UsersTableTestHelper.addUser({});
       await ThreadsTableTestHelper.addThread({ id: 'thread-234', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-234', threadId: 'thread-234', userId: 'user-123' });
+      const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
@@ -322,19 +328,20 @@ describe('/threads endpoint', () => {
   describe('when POST /threads/{threadId}/comments/{commentId}/replies', () => {
     it('should response 201 and persisted new reply on existing comment', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerReplyPayload = {
         content: 'some reply content',
       };
-      const server = await createServer(container);
-      const accessToken = await ServerTestHelper.getAccessToken();
+      await UsersTableTestHelper.addUser({});
       await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123' });
+      const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads/thread-123/comments/comment-123/replies',
-        payload: requestPayload,
+        payload: fakerReplyPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -349,15 +356,16 @@ describe('/threads endpoint', () => {
 
     it('should response 400 when request payload not contain needed property', async () => {
       // Arrange
-      const requestPayload = {};
-      const server = await createServer(container);
+      const fakerReplyPayload = {};
+      await UsersTableTestHelper.addUser({});
       const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads/thread-123/comments/comment-123/replies',
-        payload: requestPayload,
+        payload: fakerReplyPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -372,17 +380,18 @@ describe('/threads endpoint', () => {
 
     it('should response 400 when request payload has wrong data type', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerReplyPayload = {
         content: 123,
       };
-      const server = await createServer(container);
+      await UsersTableTestHelper.addUser({});
       const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads/thread-123/comments/comment-123/replies',
-        payload: requestPayload,
+        payload: fakerReplyPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -397,18 +406,19 @@ describe('/threads endpoint', () => {
 
     it('should response 404 when comment not found', async () => {
       // Arrange
-      const requestPayload = {
+      const fakerReplyPayload = {
         content: 'some reply content',
       };
-      const server = await createServer(container);
-      const accessToken = await ServerTestHelper.getAccessToken();
+      await UsersTableTestHelper.addUser({});
       await ThreadsTableTestHelper.addThread({ id: 'thread-123' });
+      const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads/thread-123/comments/comment-123/replies',
-        payload: requestPayload,
+        payload: fakerReplyPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -425,11 +435,12 @@ describe('/threads endpoint', () => {
   describe('when DELETE /threads/{threadId}/comments/{commentId}/replies/{replyId}', () => {
     it('should response 200 and delete reply on existing thread', async () => {
       // Arrange
-      const server = await createServer(container);
-      const accessToken = await ServerTestHelper.getAccessToken();
+      await UsersTableTestHelper.addUser({});
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
       await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', userId: 'user-123' });
+      const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
@@ -448,12 +459,13 @@ describe('/threads endpoint', () => {
 
     it('should response 403 when user is not comment owner', async () => {
       // Arrange
-      const server = await createServer(container);
-      const accessToken = await ServerTestHelper.getAccessToken();
+      await UsersTableTestHelper.addUser({});
       await UsersTableTestHelper.addUser({ id: 'user-234', username: 'user-234' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
       await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', userId: 'user-234' });
+      const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({
@@ -473,12 +485,13 @@ describe('/threads endpoint', () => {
 
     it('should response 404 when thread/comment not found', async () => {
       // Arrange
-      const server = await createServer(container);
-      const accessToken = await ServerTestHelper.getAccessToken();
+      await UsersTableTestHelper.addUser({});
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-234', threadId: 'thread-123', userId: 'user-123' });
       await RepliesTableTestHelper.addReply({ id: 'reply-234', commentId: 'comment-234', userId: 'user-123' });
+      const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
 
       // Act
       const response = await server.inject({

@@ -22,44 +22,43 @@ describe('ReplyRepositoryPostgres', () => {
   });
 
   describe('addReply function', () => {
-    it('should persist reply to database', async () => {
+    it('should persist reply to database and return CreatedReply entity', async () => {
       // Arrange
-      const createReply = new CreateReply({
+      const fakerPayload = new CreateReply({
         content: 'a reply content',
         commentId: 'comment-123',
         owner: 'user-123',
       });
 
-      const expectedCreatedReply = new CreatedReply({
+      const expectedReturn = new CreatedReply({
         id: 'reply-123',
         content: 'a reply content',
         owner: 'user-123',
       });
 
+      await UsersTableTestHelper.addUser({});
+      await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({});
+
       const fakeIdGenerator = () => '123';
       const sut = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
 
-      await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
-
       // Act
-      const actual = await sut.addReply(createReply);
+      const actual = await sut.addReply(fakerPayload);
 
       // Assert
-      const addedReply = await RepliesTableTestHelper.findReplyById('reply-123');
-      expect(addedReply).toHaveLength(1);
       expect(actual).toBeInstanceOf(CreatedReply);
-      expect(actual).toStrictEqual(expectedCreatedReply);
+      expect(actual).toStrictEqual(expectedReturn);
+      const actualDb = await RepliesTableTestHelper.findReplyById('reply-123');
+      expect(actualDb).toHaveLength(1);
     });
   });
 
   describe('getRepliesByCommentIds function', () => {
-    it('should return array of replies from specific comment when found', async () => {
+    it('should return array of replies from any comments when found', async () => {
       // Arrange
-      const sut = new ReplyRepositoryPostgres(pool, {});
-      const commentId = 'comment-123';
-      const expectedReplies = [
+      const fakerCommentIds = ['comment-123'];
+      const expectedReturn = [
         {
           id: 'reply-234',
           username: 'albert',
@@ -78,9 +77,9 @@ describe('ReplyRepositoryPostgres', () => {
         },
       ];
 
-      await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
+      await UsersTableTestHelper.addUser({});
+      await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({});
       await RepliesTableTestHelper.addReply({
         id: 'reply-123',
         content: 'sebuah reply',
@@ -97,41 +96,42 @@ describe('ReplyRepositoryPostgres', () => {
         isDeleted: true,
       });
 
+      const sut = new ReplyRepositoryPostgres(pool, {});
+
       // Act
-      const actual = await sut.getRepliesByCommentIds([commentId]);
+      const actual = await sut.getRepliesByCommentIds(fakerCommentIds);
 
       // Assert
-      expect(actual).toStrictEqual(expectedReplies);
+      expect(actual).toStrictEqual(expectedReturn);
     });
   });
 
   describe('checkReplyAvailability function', () => {
     it('should throw NotFoundError when comment not found', async () => {
       // Arrange
+      const fakerReplyId = 'reply-123';
+      const fakerCommentId = 'comment-123';
       const sut = new ReplyRepositoryPostgres(pool, {});
-      const replyId = 'reply-123';
-      const commentId = 'comment-123';
 
       // Act & Assert
-      await expect(sut.checkReplyAvailability(replyId, commentId))
+      await expect(sut.checkReplyAvailability(fakerReplyId, fakerCommentId))
         .rejects.toThrow(NotFoundError);
     });
 
     it('should not throw NotFoundError when comment found', async () => {
       // Arrange
-      const sut = new ReplyRepositoryPostgres(pool, {});
-      const replyId = 'reply-123';
-      const commentId = 'comment-123';
-      const threadId = 'thread-123';
-      const userId = 'user-123';
+      const fakerReplyId = 'reply-123';
+      const fakerCommentId = 'comment-123';
 
-      await UsersTableTestHelper.addUser({ id: userId });
-      await ThreadsTableTestHelper.addThread({ id: threadId, userId });
-      await CommentsTableTestHelper.addComment({ id: commentId, threadId, userId });
-      await RepliesTableTestHelper.addReply({ id: replyId, commentId });
+      await UsersTableTestHelper.addUser({});
+      await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({});
+      await RepliesTableTestHelper.addReply({});
+
+      const sut = new ReplyRepositoryPostgres(pool, {});
 
       // Act & Assert
-      await expect(sut.checkReplyAvailability(replyId, commentId))
+      await expect(sut.checkReplyAvailability(fakerReplyId, fakerCommentId))
         .resolves.not.toThrow(NotFoundError);
     });
   });
@@ -139,38 +139,36 @@ describe('ReplyRepositoryPostgres', () => {
   describe('checkReplyOwner function', () => {
     it('should throw ForbiddenError when user is not the owner of reply', async () => {
       // Arrange
-      const sut = new ReplyRepositoryPostgres(pool, {});
-      const replyId = 'reply-123';
-      const commentId = 'comment-123';
-      const threadId = 'thread-123';
-      const userId = 'user-123';
+      const fakerReplyId = 'reply-123';
+      const fakerUserId = 'user-123';
 
-      await UsersTableTestHelper.addUser({ id: userId });
+      await UsersTableTestHelper.addUser({});
       await UsersTableTestHelper.addUser({ id: 'user-234', username: 'user-234' });
-      await ThreadsTableTestHelper.addThread({ id: threadId, userId });
-      await CommentsTableTestHelper.addComment({ id: commentId, threadId, userId });
-      await RepliesTableTestHelper.addReply({ id: replyId, userId: 'user-234' });
+      await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({});
+      await RepliesTableTestHelper.addReply({ userId: 'user-234' });
+
+      const sut = new ReplyRepositoryPostgres(pool, {});
 
       // Act & Assert
-      await expect(sut.checkReplyOwner(replyId, userId))
+      await expect(sut.checkReplyOwner(fakerReplyId, fakerUserId))
         .rejects.toThrow(ForbiddenError);
     });
 
     it('should not throw ForbiddenError when user is the owner of reply', async () => {
       // Arrange
-      const sut = new ReplyRepositoryPostgres(pool, {});
-      const threadId = 'thread-123';
-      const commentId = 'comment-123';
-      const replyId = 'reply-123';
-      const userId = 'user-123';
+      const fakerReplyId = 'reply-123';
+      const fakerUserId = 'user-123';
 
-      await UsersTableTestHelper.addUser({ id: userId });
-      await ThreadsTableTestHelper.addThread({ id: threadId });
-      await CommentsTableTestHelper.addComment({ id: commentId, threadId, userId });
-      await RepliesTableTestHelper.addReply({ id: replyId, commentId, userId });
+      await UsersTableTestHelper.addUser({});
+      await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({});
+      await RepliesTableTestHelper.addReply({});
+
+      const sut = new ReplyRepositoryPostgres(pool, {});
 
       // Act & Assert
-      await expect(sut.checkReplyOwner(replyId, userId))
+      await expect(sut.checkReplyOwner(fakerReplyId, fakerUserId))
         .resolves.not.toThrow(ForbiddenError);
     });
   });
@@ -178,15 +176,15 @@ describe('ReplyRepositoryPostgres', () => {
   describe('deleteReplyById function', () => {
     it('should delete comment from database', async () => {
       // Arrange
+      const fakerReplyId = 'reply-123';
       const sut = new ReplyRepositoryPostgres(pool, {});
-      const replyId = 'reply-123';
 
       // Act
-      await sut.deleteReplyById(replyId);
+      await sut.deleteReplyById(fakerReplyId);
 
       // Assert
-      const findReply = await RepliesTableTestHelper.findReplyById('reply-123');
-      expect(findReply).toHaveLength(0);
+      const actualDb = await RepliesTableTestHelper.findReplyById('reply-123');
+      expect(actualDb).toHaveLength(0);
     });
   });
 });

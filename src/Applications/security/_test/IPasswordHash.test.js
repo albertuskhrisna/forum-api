@@ -5,7 +5,7 @@ describe('A PasswordHash interface', () => {
     // Arrange
     const passwordHash = new IPasswordHash();
 
-    // Assert
+    // Act & Assert
     await expect(() => passwordHash.hash('dummy')).rejects.toThrow(Error('PASSWORD_HASH.METHOD_NOT_IMPLEMENTED'));
     await expect(() => passwordHash.comparePassword('dummy')).rejects.toThrow(Error('PASSWORD_HASH.METHOD_NOT_IMPLEMENTED'));
   });

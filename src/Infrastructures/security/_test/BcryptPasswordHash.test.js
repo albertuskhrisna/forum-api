@@ -10,11 +10,11 @@ describe('A BcryptPasswordHash', () => {
       const bcryptPasswordHash = new BcryptPasswordHash(bcrypt);
 
       // Act
-      const act = await bcryptPasswordHash.hash('plain_password');
+      const actual = await bcryptPasswordHash.hash('plain_password');
 
       // Assert
-      expect(typeof act).toEqual('string');
-      expect(act).not.toEqual('plain_password');
+      expect(typeof actual).toEqual('string');
+      expect(actual).not.toEqual('plain_password');
       expect(spyHash).toHaveBeenCalledWith('plain_password', 10);
     });
   });

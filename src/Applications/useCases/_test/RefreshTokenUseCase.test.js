@@ -5,30 +5,34 @@ const RefreshTokenUseCase = require('../RefreshTokenUseCase');
 describe('RefreshToken use case', () => {
   it('should throw error when payload did not contain needed property', async () => {
     // Arrange
-    const payload = {};
+    const useCasePayload = {};
     const sut = new RefreshTokenUseCase({});
 
     // Act & Assert
-    await expect(() => sut.execute(payload))
+    await expect(() => sut.execute(useCasePayload))
       .rejects.toThrow(Error('REFRESH_TOKEN_USE_CASE.NOT_CONTAIN_NEEDED_PROPERTY'));
   });
 
   it('should throw error when payload did not meet data type specification', async () => {
     // Arrange
-    const payload = {
+    const useCasePayload = {
       refreshToken: 123,
     };
     const sut = new RefreshTokenUseCase({});
 
     // Act & Assert
-    await expect(() => sut.execute(payload))
+    await expect(() => sut.execute(useCasePayload))
       .rejects.toThrow(Error('REFRESH_TOKEN_USE_CASE.NOT_MEET_DATA_TYPE_SPECIFICATION'));
   });
 
   it('should orchestrating the refresh authentication action correctly', async () => {
     // Arrange
-    const payload = {
+    const useCasePayload = {
       refreshToken: 'refresh_token',
+    };
+
+    const fakerRequestToken = {
+      id: 'user-123', username: 'albert',
     };
 
     const mockAuthenticationRepository = new IAuthenticationRepository();
@@ -36,7 +40,7 @@ describe('RefreshToken use case', () => {
 
     mockAuthenticationTokenManager.verifyRefreshToken = jest.fn(() => Promise.resolve());
     mockAuthenticationRepository.checkTokenAvailability = jest.fn(() => Promise.resolve());
-    mockAuthenticationTokenManager.decodePayload = jest.fn(() => Promise.resolve({ id: 'user-123', username: 'albert' }));
+    mockAuthenticationTokenManager.decodePayload = jest.fn(() => Promise.resolve(fakerRequestToken));
     mockAuthenticationTokenManager.createAccessToken = jest.fn(() => Promise.resolve('new_access_token'));
 
     const sut = new RefreshTokenUseCase({
@@ -45,13 +49,13 @@ describe('RefreshToken use case', () => {
     });
 
     // Act
-    const actual = await sut.execute(payload);
+    const actual = await sut.execute(useCasePayload);
 
     // Assert
     expect(actual).toEqual('new_access_token');
-    expect(mockAuthenticationTokenManager.verifyRefreshToken).toHaveBeenCalledWith(payload.refreshToken);
-    expect(mockAuthenticationRepository.checkTokenAvailability).toHaveBeenCalledWith(payload.refreshToken);
-    expect(mockAuthenticationTokenManager.decodePayload).toHaveBeenCalledWith(payload.refreshToken);
-    expect(mockAuthenticationTokenManager.createAccessToken).toHaveBeenCalledWith({ id: 'user-123', username: 'albert' });
+    expect(mockAuthenticationTokenManager.verifyRefreshToken).toHaveBeenCalledWith(useCasePayload.refreshToken);
+    expect(mockAuthenticationRepository.checkTokenAvailability).toHaveBeenCalledWith(useCasePayload.refreshToken);
+    expect(mockAuthenticationTokenManager.decodePayload).toHaveBeenCalledWith(useCasePayload.refreshToken);
+    expect(mockAuthenticationTokenManager.createAccessToken).toHaveBeenCalledWith(fakerRequestToken);
   });
 });

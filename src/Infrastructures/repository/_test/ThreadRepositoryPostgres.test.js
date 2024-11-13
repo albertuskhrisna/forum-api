@@ -17,32 +17,32 @@ describe('ThreadRepositoryPostgres', () => {
   });
 
   describe('addThread function', () => {
-    it('should persist thread to database', async () => {
+    it('should persist thread to database and return CreatedReply entity', async () => {
       // Arrange
-      const createThread = new CreateThread({
+      const fakerPayload = new CreateThread({
         title: 'thread title',
         body: 'thread body',
         owner: 'user-123',
       });
 
-      const expectedCreatedThread = new CreatedThread({
+      const expectedReturn = new CreatedThread({
         id: 'thread-123',
         title: 'thread title',
         owner: 'user-123',
       });
 
+      await UsersTableTestHelper.addUser({ id: 'user-123' });
       const fakeIdGenerator = () => '123';
       const sut = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
-      await UsersTableTestHelper.addUser({ id: 'user-123' });
 
       // Act
-      const actual = await sut.addThread(createThread);
+      const actual = await sut.addThread(fakerPayload);
 
       // Assert
-      const addedThread = await ThreadsTableTestHelper.findThreadById('thread-123');
-      expect(addedThread).toHaveLength(1);
       expect(actual).toBeInstanceOf(CreatedThread);
-      expect(actual).toStrictEqual(expectedCreatedThread);
+      expect(actual).toStrictEqual(expectedReturn);
+      const actualDb = await ThreadsTableTestHelper.findThreadById('thread-123');
+      expect(actualDb).toHaveLength(1);
     });
   });
 
@@ -50,22 +50,23 @@ describe('ThreadRepositoryPostgres', () => {
     it('should throw NotFoundError when thread not found', async () => {
       // Arrange
       const sut = new ThreadRepositoryPostgres(pool, {});
-      const threadId = 'thread-123';
+      const fakerThreadId = 'thread-123';
 
       // Act & Assert
-      await expect(sut.checkThreadAvailability(threadId))
+      await expect(sut.checkThreadAvailability(fakerThreadId))
         .rejects.toThrow(NotFoundError);
     });
 
     it('should not throw NotFoundError when thread found', async () => {
       // Arrange
+      const fakerThreadId = 'thread-123';
+      await UsersTableTestHelper.addUser({});
+      await ThreadsTableTestHelper.addThread({});
+
       const sut = new ThreadRepositoryPostgres(pool, {});
-      const threadId = 'thread-123';
-      await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await ThreadsTableTestHelper.addThread({ id: threadId, userId: 'user-123' });
 
       // Act & Assert
-      await expect(sut.checkThreadAvailability(threadId))
+      await expect(sut.checkThreadAvailability(fakerThreadId))
         .resolves.not.toThrow(NotFoundError);
     });
   });
@@ -73,33 +74,35 @@ describe('ThreadRepositoryPostgres', () => {
   describe('getThreadById function', () => {
     it('should throw NotFoundError when thread not found', async () => {
       // Arrange
+      const fakerThreadId = 'thread-123';
       const sut = new ThreadRepositoryPostgres(pool, {});
-      const threadId = 'thread-123';
 
       // Act & Assert
-      await expect(sut.getThreadById(threadId))
+      await expect(sut.getThreadById(fakerThreadId))
         .rejects.toThrow(NotFoundError);
     });
 
     it('should return expected thread when thread found', async () => {
       // Arrange
-      const sut = new ThreadRepositoryPostgres(pool, {});
-      const threadId = 'thread-123';
-      const expectedThread = {
+      const fakerThreadId = 'thread-123';
+      const expectedReturn = {
         id: 'thread-123',
         title: 'a thread',
         body: 'thread body',
         date: '2024-10-30T08:00:00.000Z',
         username: 'albert',
       };
-      await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await ThreadsTableTestHelper.addThread({ id: expectedThread.id, userId: 'user-123' });
+
+      await UsersTableTestHelper.addUser({});
+      await ThreadsTableTestHelper.addThread({});
+
+      const sut = new ThreadRepositoryPostgres(pool, {});
 
       // Act
-      const actual = await sut.getThreadById(threadId);
+      const actual = await sut.getThreadById(fakerThreadId);
 
       // Assert
-      expect(actual).toStrictEqual(expectedThread);
+      expect(actual).toStrictEqual(expectedReturn);
     });
   });
 });
