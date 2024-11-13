@@ -2,6 +2,9 @@ const IThreadRepository = require('../../../Domains/threads/IThreadRepository');
 const ICommentRepository = require('../../../Domains/comments/ICommentRepository');
 const IReplyRepository = require('../../../Domains/replies/IReplyRepository');
 const GetThreadDetailUseCase = require('../GetThreadDetailUseCase');
+const RetrievedThread = require('../../../Domains/threads/entities/RetrievedThread');
+const RetrievedComment = require('../../../Domains/comments/entities/RetrievedComment');
+const RetrievedReply = require('../../../Domains/replies/entities/RetrievedReply');
 
 describe('Get Thread Detail use case', () => {
   it('should return detail of a thread correctly', async () => {
@@ -38,6 +41,7 @@ describe('Get Thread Detail use case', () => {
         date: '2021-08-08T07:22:33.555Z',
         content: 'sebuah reply',
         is_deleted: false,
+        comment_id: 'comment-123',
       },
       {
         id: 'reply-234',
@@ -45,18 +49,16 @@ describe('Get Thread Detail use case', () => {
         date: '2021-08-08T07:22:33.555Z',
         content: 'sebuah reply',
         is_deleted: true,
+        comment_id: 'comment-234',
       },
     ];
 
     const mockThreadRepository = new IThreadRepository();
     const mockCommentRepository = new ICommentRepository();
     const mockReplyRepository = new IReplyRepository();
-    mockThreadRepository.getThreadById = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedThread));
-    mockCommentRepository.getCommentByThreadId = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedComment));
-    mockReplyRepository.getRepliesByCommentId = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedReplies));
+    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(expectedThread));
+    mockCommentRepository.getCommentByThreadId = jest.fn(() => Promise.resolve(expectedComment));
+    mockReplyRepository.getRepliesByCommentIds = jest.fn(() => Promise.resolve(expectedReplies));
 
     const sut = new GetThreadDetailUseCase({ threadRepository: mockThreadRepository, commentRepository: mockCommentRepository, replyRepository: mockReplyRepository });
 
@@ -64,39 +66,50 @@ describe('Get Thread Detail use case', () => {
     const actual = await sut.execute('thread-123');
 
     // Assert
-    expect(actual.id).toEqual('thread-123');
-    expect(actual.title).toEqual('sebuah thread');
-    expect(actual.body).toEqual('sebuah body thread');
-    expect(actual.date).toEqual('2021-08-08T07:19:09.775Z');
-    expect(actual.username).toEqual('albert');
-    expect(actual.comments).toBeInstanceOf(Array);
-    expect(actual.comments).toHaveLength(2);
-
-    expect(actual.comments[0].id).toEqual('comment-123');
-    expect(actual.comments[0].username).toEqual('johndoe');
-    expect(actual.comments[0].date).toEqual('2021-08-08T07:22:33.555Z');
-    expect(actual.comments[0].content).toEqual('sebuah comment');
-    expect(actual.comments[0].replies).toBeInstanceOf(Array);
-    expect(actual.comments[0].replies).toHaveLength(2);
-
-    expect(actual.comments[0].replies[0].id).toEqual('reply-123');
-    expect(actual.comments[0].replies[0].content).toEqual('sebuah reply');
-    expect(actual.comments[0].replies[0].date).toEqual('2021-08-08T07:22:33.555Z');
-    expect(actual.comments[0].replies[0].username).toEqual('johndoe');
-
-    expect(actual.comments[0].replies[1].id).toEqual('reply-234');
-    expect(actual.comments[0].replies[1].content).toEqual('**balasan telah dihapus**');
-    expect(actual.comments[0].replies[1].date).toEqual('2021-08-08T07:22:33.555Z');
-    expect(actual.comments[0].replies[1].username).toEqual('johndoe');
-
-    expect(actual.comments[1].id).toEqual('comment-234');
-    expect(actual.comments[1].username).toEqual('johndoe');
-    expect(actual.comments[1].date).toEqual('2021-08-08T07:22:33.555Z');
-    expect(actual.comments[1].content).toEqual('**komentar telah dihapus**');
+    expect(actual).toStrictEqual(new RetrievedThread({
+      id: expectedThread.id,
+      title: expectedThread.title,
+      body: expectedThread.body,
+      date: expectedThread.date,
+      username: expectedThread.username,
+      comments: [
+        new RetrievedComment({
+          id: expectedComment[0].id,
+          username: expectedComment[0].username,
+          date: expectedComment[0].date,
+          content: expectedComment[0].content,
+          isDeleted: expectedComment[0].is_deleted,
+          replies: [
+            new RetrievedReply({
+              id: expectedReplies[0].id,
+              content: expectedReplies[0].content,
+              date: expectedReplies[0].date,
+              username: expectedReplies[0].username,
+              isDeleted: expectedReplies[0].is_deleted,
+            }),
+          ],
+        }),
+        new RetrievedComment({
+          id: expectedComment[1].id,
+          username: expectedComment[1].username,
+          date: expectedComment[1].date,
+          content: expectedComment[1].content,
+          isDeleted: expectedComment[1].is_deleted,
+          replies: [
+            new RetrievedReply({
+              id: expectedReplies[1].id,
+              content: expectedReplies[1].content,
+              date: expectedReplies[1].date,
+              username: expectedReplies[1].username,
+              isDeleted: expectedReplies[1].is_deleted,
+            }),
+          ],
+        }),
+      ],
+    }));
 
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith('thread-123');
     expect(mockCommentRepository.getCommentByThreadId).toHaveBeenCalledWith('thread-123');
-    expect(mockReplyRepository.getRepliesByCommentId).toHaveBeenCalledWith('comment-123');
-    expect(mockReplyRepository.getRepliesByCommentId).toHaveBeenCalledWith('comment-234');
+    expect(mockReplyRepository.getRepliesByCommentIds).toHaveBeenCalledWith(['comment-123', 'comment-234']);
   });
 });

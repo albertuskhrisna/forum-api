@@ -25,10 +25,8 @@ describe('Add Comment use case', () => {
 
     const mockThreadRepository = new IThreadRepository();
     const mockCommentRepository = new ICommentRepository();
-    mockThreadRepository.checkThreadAvailability = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockCommentRepository.addComment = jest.fn()
-      .mockImplementation(() => Promise.resolve(expected));
+    mockThreadRepository.checkThreadAvailability = jest.fn(() => Promise.resolve());
+    mockCommentRepository.addComment = jest.fn(() => Promise.resolve(expected));
 
     const sut = new AddCommentUseCase({ threadRepository: mockThreadRepository, commentRepository: mockCommentRepository });
 
@@ -36,10 +34,12 @@ describe('Add Comment use case', () => {
     const actual = await sut.execute('user-123', 'thread-123', payload);
 
     // Assert
-    expect(actual).toBeInstanceOf(CreatedComment);
-    expect(actual.id).toEqual(expected.id);
-    expect(actual.content).toEqual(expected.content);
-    expect(actual.owner).toEqual(expected.owner);
+    expect(actual).toStrictEqual(new CreatedComment({
+      id: expected.id,
+      content: expected.content,
+      owner: expected.owner,
+    }));
+
     expect(mockThreadRepository.checkThreadAvailability).toHaveBeenCalledWith('thread-123');
     expect(mockCommentRepository.addComment).toHaveBeenCalledWith(createComment);
   });

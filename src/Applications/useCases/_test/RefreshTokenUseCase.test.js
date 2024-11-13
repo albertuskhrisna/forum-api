@@ -34,14 +34,10 @@ describe('RefreshToken use case', () => {
     const mockAuthenticationRepository = new IAuthenticationRepository();
     const mockAuthenticationTokenManager = new IAuthenticationTokenManager();
 
-    mockAuthenticationTokenManager.verifyRefreshToken = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockAuthenticationRepository.checkTokenAvailability = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
-      .mockImplementation(() => Promise.resolve({ id: 'user-123', username: 'albert' }));
-    mockAuthenticationTokenManager.createAccessToken = jest.fn()
-      .mockImplementation(() => Promise.resolve('new_access_token'));
+    mockAuthenticationTokenManager.verifyRefreshToken = jest.fn(() => Promise.resolve());
+    mockAuthenticationRepository.checkTokenAvailability = jest.fn(() => Promise.resolve());
+    mockAuthenticationTokenManager.decodePayload = jest.fn(() => Promise.resolve({ id: 'user-123', username: 'albert' }));
+    mockAuthenticationTokenManager.createAccessToken = jest.fn(() => Promise.resolve('new_access_token'));
 
     const sut = new RefreshTokenUseCase({
       authenticationRepository: mockAuthenticationRepository,
@@ -52,14 +48,10 @@ describe('RefreshToken use case', () => {
     const actual = await sut.execute(payload);
 
     // Assert
-    expect(mockAuthenticationTokenManager.verifyRefreshToken)
-      .toHaveBeenCalledWith(payload.refreshToken);
-    expect(mockAuthenticationRepository.checkTokenAvailability)
-      .toHaveBeenCalledWith(payload.refreshToken);
-    expect(mockAuthenticationTokenManager.decodePayload)
-      .toHaveBeenCalledWith(payload.refreshToken);
-    expect(mockAuthenticationTokenManager.createAccessToken)
-      .toHaveBeenCalledWith({ id: 'user-123', username: 'albert' });
     expect(actual).toEqual('new_access_token');
+    expect(mockAuthenticationTokenManager.verifyRefreshToken).toHaveBeenCalledWith(payload.refreshToken);
+    expect(mockAuthenticationRepository.checkTokenAvailability).toHaveBeenCalledWith(payload.refreshToken);
+    expect(mockAuthenticationTokenManager.decodePayload).toHaveBeenCalledWith(payload.refreshToken);
+    expect(mockAuthenticationTokenManager.createAccessToken).toHaveBeenCalledWith({ id: 'user-123', username: 'albert' });
   });
 });

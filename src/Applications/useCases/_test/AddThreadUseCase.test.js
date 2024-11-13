@@ -24,8 +24,7 @@ describe('Add Thread use case', () => {
     });
 
     const mockThreadRepository = new IThreadRepository();
-    mockThreadRepository.addThread = jest.fn()
-      .mockImplementation(() => Promise.resolve(expected));
+    mockThreadRepository.addThread = jest.fn(() => Promise.resolve(expected));
 
     const sut = new AddThreadUseCase({ threadRepository: mockThreadRepository });
 
@@ -33,10 +32,12 @@ describe('Add Thread use case', () => {
     const actual = await sut.execute('user-123', payload);
 
     // Assert
-    expect(actual).toBeInstanceOf(CreatedThread);
-    expect(actual.id).toEqual(expected.id);
-    expect(actual.title).toEqual(expected.title);
-    expect(actual.owner).toEqual(expected.owner);
+    expect(actual).toStrictEqual(new CreatedThread({
+      id: expected.id,
+      title: expected.title,
+      owner: expected.owner,
+    }));
+
     expect(mockThreadRepository.addThread).toHaveBeenCalledWith(createThread);
   });
 });

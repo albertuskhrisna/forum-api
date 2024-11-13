@@ -54,7 +54,7 @@ describe('ReplyRepositoryPostgres', () => {
     });
   });
 
-  describe('getRepliesByCommentId function', () => {
+  describe('getRepliesByCommentIds function', () => {
     it('should return array of replies from specific comment when found', async () => {
       // Arrange
       const sut = new ReplyRepositoryPostgres(pool, {});
@@ -66,6 +66,7 @@ describe('ReplyRepositoryPostgres', () => {
           date: '2021-08-08T07:22:33.555Z',
           content: 'sebuah reply',
           is_deleted: true,
+          comment_id: 'comment-123',
         },
         {
           id: 'reply-123',
@@ -73,6 +74,7 @@ describe('ReplyRepositoryPostgres', () => {
           date: '2021-08-08T07:25:33.555Z',
           content: 'sebuah reply',
           is_deleted: false,
+          comment_id: 'comment-123',
         },
       ];
 
@@ -96,7 +98,7 @@ describe('ReplyRepositoryPostgres', () => {
       });
 
       // Act
-      const actual = await sut.getRepliesByCommentId(commentId);
+      const actual = await sut.getRepliesByCommentIds([commentId]);
 
       // Assert
       expect(actual).toStrictEqual(expectedReplies);

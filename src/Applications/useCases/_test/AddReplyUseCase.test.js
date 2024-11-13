@@ -25,10 +25,8 @@ describe('Add Reply use case', () => {
 
     const mockCommentRepository = new ICommentRepository();
     const mockReplyRepository = new IReplyRepository();
-    mockCommentRepository.checkCommentAvailability = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockReplyRepository.addReply = jest.fn()
-      .mockImplementation(() => Promise.resolve(expected));
+    mockCommentRepository.checkCommentAvailability = jest.fn(() => Promise.resolve());
+    mockReplyRepository.addReply = jest.fn(() => Promise.resolve(expected));
 
     const sut = new AddReplyUseCase({ commentRepository: mockCommentRepository, replyRepository: mockReplyRepository });
 
@@ -36,10 +34,12 @@ describe('Add Reply use case', () => {
     const actual = await sut.execute('user-123', 'comment-123', 'thread-123', payload);
 
     // Assert
-    expect(actual).toBeInstanceOf(CreatedReply);
-    expect(actual.id).toEqual(expected.id);
-    expect(actual.content).toEqual(expected.content);
-    expect(actual.owner).toEqual(expected.owner);
+    expect(actual).toStrictEqual(new CreatedReply({
+      id: expected.id,
+      content: expected.content,
+      owner: expected.owner,
+    }));
+
     expect(mockCommentRepository.checkCommentAvailability).toHaveBeenCalledWith('comment-123', 'thread-123');
     expect(mockReplyRepository.addReply).toHaveBeenCalledWith(createReply);
   });

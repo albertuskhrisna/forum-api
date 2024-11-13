@@ -29,13 +29,13 @@ class ReplyRepositoryPostgres extends IReplyRepository {
     });
   }
 
-  async getRepliesByCommentId(commentId) {
+  async getRepliesByCommentIds(commentIds) {
     const query = {
-      text: `SELECT replies.id, replies.content, replies.is_deleted, users.username,
+      text: `SELECT replies.id, replies.content, replies.is_deleted, users.username, replies.comment_id,
         TO_CHAR(timezone('UTC', replies.date), 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS date
         FROM replies JOIN users ON replies.owner_id = users.id
-        WHERE replies.comment_id = $1 ORDER BY date ASC`,
-      values: [commentId],
+        WHERE replies.comment_id = ANY($1::text[]) ORDER BY date ASC`,
+      values: [commentIds],
     };
 
     const result = await this._pool.query(query);

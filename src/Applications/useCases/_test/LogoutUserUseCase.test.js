@@ -31,10 +31,8 @@ describe('LogoutUser use case', () => {
     };
 
     const mockAuthenticationRepository = new IAuthenticationRepository();
-    mockAuthenticationRepository.checkTokenAvailability = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockAuthenticationRepository.deleteToken = jest.fn()
-      .mockImplementation(() => Promise.resolve());
+    mockAuthenticationRepository.checkTokenAvailability = jest.fn(() => Promise.resolve());
+    mockAuthenticationRepository.deleteToken = jest.fn(() => Promise.resolve());
 
     const sut = new LogoutUserUseCase({
       authenticationRepository: mockAuthenticationRepository,

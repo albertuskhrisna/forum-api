@@ -5,12 +5,9 @@ describe('Delete Comment use case', () => {
   it('should orchestrating the delete comment action correctly', async () => {
     // Arrange
     const mockCommentRepository = new ICommentRepository();
-    mockCommentRepository.checkCommentAvailability = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockCommentRepository.checkCommentOwner = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockCommentRepository.deleteCommentById = jest.fn()
-      .mockImplementation(() => Promise.resolve());
+    mockCommentRepository.checkCommentAvailability = jest.fn(() => Promise.resolve());
+    mockCommentRepository.checkCommentOwner = jest.fn(() => Promise.resolve());
+    mockCommentRepository.deleteCommentById = jest.fn(() => Promise.resolve());
 
     const sut = new DeleteCommentUseCase({ commentRepository: mockCommentRepository });
 

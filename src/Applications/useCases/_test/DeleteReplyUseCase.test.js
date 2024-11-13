@@ -7,14 +7,10 @@ describe('Delete Reply use case', () => {
     // Arrange
     const mockCommentRepository = new ICommentRepository();
     const mockReplyRepository = new IReplyRepository();
-    mockCommentRepository.checkCommentAvailability = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockReplyRepository.checkReplyAvailability = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockReplyRepository.checkReplyOwner = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockReplyRepository.deleteReplyById = jest.fn()
-      .mockImplementation(() => Promise.resolve());
+    mockCommentRepository.checkCommentAvailability = jest.fn(() => Promise.resolve());
+    mockReplyRepository.checkReplyAvailability = jest.fn(() => Promise.resolve());
+    mockReplyRepository.checkReplyOwner = jest.fn(() => Promise.resolve());
+    mockReplyRepository.deleteReplyById = jest.fn(() => Promise.resolve());
 
     const sut = new DeleteReplyUseCase({ commentRepository: mockCommentRepository, replyRepository: mockReplyRepository });
 

@@ -1,3 +1,7 @@
+const RetrievedThread = require('../../Domains/threads/entities/RetrievedThread');
+const RetrievedComment = require('../../Domains/comments/entities/RetrievedComment');
+const RetrievedReply = require('../../Domains/replies/entities/RetrievedReply');
+
 class GetThreadDetailUseCase {
   constructor({ threadRepository, commentRepository, replyRepository }) {
     this._threadRepository = threadRepository;
@@ -8,31 +12,18 @@ class GetThreadDetailUseCase {
   async execute(threadId) {
     const thread = await this._threadRepository.getThreadById(threadId);
     const commentsDb = await this._commentRepository.getCommentByThreadId(threadId);
+    const commentIds = commentsDb.map(({ id }) => id);
+    const repliesDb = await this._replyRepository.getRepliesByCommentIds(commentIds);
 
-    const comments = [];
-    for (const comment of commentsDb) {
-      const replies = [];
-      const repliesDb = await this._replyRepository.getRepliesByCommentId(comment.id);
-      repliesDb.map((reply) => replies.push({
-        id: reply.id,
-        content: reply.is_deleted ? '**balasan telah dihapus**' : reply.content,
-        date: reply.date,
-        username: reply.username,
-      }));
+    const comments = commentsDb.map((comment) => {
+      const replies = repliesDb
+        .filter((item) => item.comment_id === comment.id)
+        .map((item) => new RetrievedReply({ ...item, isDeleted: item.is_deleted }));
 
-      comments.push({
-        id: comment.id,
-        username: comment.username,
-        date: comment.date,
-        replies,
-        content: comment.is_deleted ? '**komentar telah dihapus**' : comment.content,
-      });
-    }
+      return new RetrievedComment({ ...comment, isDeleted: comment.is_deleted, replies });
+    });
 
-    return {
-      ...thread,
-      comments,
-    };
+    return new RetrievedThread({ ...thread, comments });
   }
 }
 

@@ -106,7 +106,9 @@ describe('/threads endpoint', () => {
       await UsersTableTestHelper.addUser({ id: 'user-123' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', userId: 'user-123' });
       await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', userId: 'user-123' });
+      // await CommentsTableTestHelper.addComment({ id: 'comment-234', threadId: 'thread-123', userId: 'user-123' });
       await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', userId: 'user-123' });
+      // await RepliesTableTestHelper.addReply({ id: 'reply-234', commentId: 'comment-234', userId: 'user-123' });
 
       // Act
       const response = await server.inject({
