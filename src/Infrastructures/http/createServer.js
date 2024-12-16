@@ -49,6 +49,14 @@ const createServer = async (container) => {
     },
   ]);
 
+  server.route({
+    method: 'GET',
+    path: '/',
+    handler: () => ({
+      value: 'Test CI failed!',
+    }),
+  });
+
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
 
