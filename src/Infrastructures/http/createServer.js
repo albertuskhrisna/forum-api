@@ -49,6 +49,14 @@ const createServer = async (container) => {
     },
   ]);
 
+  server.route({
+    method: 'GET',
+    path: '/',
+    handler: () => ({
+      value: 'Forum API V2 developed by Albertus Khrisna',
+    }),
+  });
+
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
 
