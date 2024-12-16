@@ -53,7 +53,7 @@ const createServer = async (container) => {
     method: 'GET',
     path: '/',
     handler: () => ({
-      value: 'Test CI failed!',
+      value: 'Forum API V2 developed by Albertus Khrisna',
     }),
   });
 
