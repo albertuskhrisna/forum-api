@@ -1,0 +1,25 @@
+name: Continues Deployment
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Connect using SSH and deploy App
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          cd ~/forum-api
+          git pull origin master
+          npm install
+          npm run migrate up
+          pm2 restart forum-api
