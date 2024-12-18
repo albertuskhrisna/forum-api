@@ -20,6 +20,8 @@ jobs:
         script: |
           cd ~/forum-api
           git pull origin master
+          export NVM_DIR=~/.nvm
+          source ~/.nvm/nvm.sh
           npm install
           npm run migrate up
           pm2 restart forum-api
