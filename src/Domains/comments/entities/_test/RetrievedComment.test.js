@@ -24,6 +24,7 @@ describe('RetrievedComment entity', () => {
       content: true,
       isDeleted: {},
       replies: [],
+      likeCount: '10',
     };
 
     // Act & Assert
@@ -39,6 +40,7 @@ describe('RetrievedComment entity', () => {
       content: 'sebuah comment',
       isDeleted: false,
       replies: [],
+      likeCount: 10,
     };
 
     // Act
@@ -62,6 +64,7 @@ describe('RetrievedComment entity', () => {
       content: 'sebuah comment',
       isDeleted: true,
       replies: [],
+      likeCount: 10,
     };
 
     // Act

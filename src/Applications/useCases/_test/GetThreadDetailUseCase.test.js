@@ -1,6 +1,7 @@
 const IThreadRepository = require('../../../Domains/threads/IThreadRepository');
 const ICommentRepository = require('../../../Domains/comments/ICommentRepository');
 const IReplyRepository = require('../../../Domains/replies/IReplyRepository');
+const ICommentLikesRepository = require('../../../Domains/commentLikes/ICommentLikesRepository');
 const GetThreadDetailUseCase = require('../GetThreadDetailUseCase');
 const RetrievedThread = require('../../../Domains/threads/entities/RetrievedThread');
 const RetrievedComment = require('../../../Domains/comments/entities/RetrievedComment');
@@ -53,6 +54,17 @@ describe('Get Thread Detail use case', () => {
       },
     ];
 
+    const fakerCommentLikesDb = [
+      {
+        comment_id: 'comment-123',
+        like_count: 10,
+      },
+      {
+        comment_id: 'comment-234',
+        like_count: 10,
+      },
+    ];
+
     const expectedReturn = new RetrievedThread({
       id: fakerThreadDb.id,
       title: fakerThreadDb.title,
@@ -75,6 +87,7 @@ describe('Get Thread Detail use case', () => {
               isDeleted: fakerReplyDb[0].is_deleted,
             }),
           ],
+          likeCount: 10,
         }),
         new RetrievedComment({
           id: fakerCommentDb[1].id,
@@ -91,6 +104,7 @@ describe('Get Thread Detail use case', () => {
               isDeleted: fakerReplyDb[1].is_deleted,
             }),
           ],
+          likeCount: 10,
         }),
       ],
     });
@@ -98,11 +112,18 @@ describe('Get Thread Detail use case', () => {
     const mockThreadRepository = new IThreadRepository();
     const mockCommentRepository = new ICommentRepository();
     const mockReplyRepository = new IReplyRepository();
+    const mockCommentLikesRepository = new ICommentLikesRepository();
     mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(fakerThreadDb));
     mockCommentRepository.getCommentByThreadId = jest.fn(() => Promise.resolve(fakerCommentDb));
     mockReplyRepository.getRepliesByCommentIds = jest.fn(() => Promise.resolve(fakerReplyDb));
+    mockCommentLikesRepository.getLikesCountByCommentIds = jest.fn(() => Promise.resolve(fakerCommentLikesDb));
 
-    const sut = new GetThreadDetailUseCase({ threadRepository: mockThreadRepository, commentRepository: mockCommentRepository, replyRepository: mockReplyRepository });
+    const sut = new GetThreadDetailUseCase({
+      threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
+      replyRepository: mockReplyRepository,
+      commentLikesRepository: mockCommentLikesRepository,
+    });
 
     // Act
     const actual = await sut.execute('thread-123');
@@ -112,5 +133,6 @@ describe('Get Thread Detail use case', () => {
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith('thread-123');
     expect(mockCommentRepository.getCommentByThreadId).toHaveBeenCalledWith('thread-123');
     expect(mockReplyRepository.getRepliesByCommentIds).toHaveBeenCalledWith(['comment-123', 'comment-234']);
+    expect(mockCommentLikesRepository.getLikesCountByCommentIds).toHaveBeenCalledWith(['comment-123', 'comment-234']);
   });
 });
