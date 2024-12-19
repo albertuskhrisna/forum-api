@@ -16,6 +16,7 @@ const IAuthenticationTokenManager = require('../Applications/security/IAuthentic
 const IThreadRepository = require('../Domains/threads/IThreadRepository');
 const ICommentRepository = require('../Domains/comments/ICommentRepository');
 const IReplyRepository = require('../Domains/replies/IReplyRepository');
+const ICommentLikesRepository = require('../Domains/commentLikes/ICommentLikesRepository');
 
 /* service concrete (repository, helper, manager, etc) */
 const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
@@ -25,6 +26,7 @@ const JwtTokenManager = require('./security/JwtTokenManager');
 const ThreadRepositoryPostgres = require('./repository/ThreadRepositoryPostgres');
 const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgres');
 const ReplyRepositoryPostgres = require('./repository/ReplyRepositoryPostgres');
+const CommentLikesRepositoryPostgres = require('./repository/CommentLikesRepositoryPostgres');
 
 /* use cases */
 const AddUserUseCase = require('../Applications/useCases/AddUserUseCase');
@@ -37,6 +39,7 @@ const DeleteCommentUseCase = require('../Applications/useCases/DeleteCommentUseC
 const GetThreadDetailUseCase = require('../Applications/useCases/GetThreadDetailUseCase');
 const AddReplyUseCase = require('../Applications/useCases/AddReplyUseCase');
 const DeleteReplyUseCase = require('../Applications/useCases/DeleteReplyUseCase');
+const ToggleCommentLikesUseCase = require('../Applications/useCases/ToggleCommentLikesUseCase');
 
 /* create container */
 const container = createContainer();
@@ -128,6 +131,17 @@ container.register([
         },
         {
           concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
+    key: ICommentLikesRepository.name,
+    Class: CommentLikesRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
         },
       ],
     },
@@ -269,6 +283,10 @@ container.register([
           name: 'replyRepository',
           internal: IReplyRepository.name,
         },
+        {
+          name: 'commentLikesRepository',
+          internal: ICommentLikesRepository.name,
+        },
       ],
     },
   },
@@ -302,6 +320,23 @@ container.register([
         {
           name: 'replyRepository',
           internal: IReplyRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: ToggleCommentLikesUseCase.name,
+    Class: ToggleCommentLikesUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'commentRepository',
+          internal: ICommentRepository.name,
+        },
+        {
+          name: 'commentLikesRepository',
+          internal: ICommentLikesRepository.name,
         },
       ],
     },
